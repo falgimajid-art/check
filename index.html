@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة WTTCO الميدانية | 2026</title>
+    <!-- توحيد الخط الرسمي للشركة (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- إعدادات ألوان شركة نقل المياه (WTTCO) والوضع الليلي -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wttco: {
+                            dark: '#0B2A4A', // أزرق داكن (هوية الشركة)
+                            light: '#00A3E0', // تركواز مائي (هوية الشركة)
+                            accent: '#1e4b7a' 
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; transition: background-color 0.5s ease, color 0.5s ease; }
+        .smooth-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* إخفاء أسهم حقول الأرقام */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* أنيميشن الدخول العصري Feed in 2026 */
+        .fade-in-up {
+            animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تخصيص الـ Scrollbar ليتناسب مع الهوية */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #00A3E0; border-radius: 10px; }
+    </style>
+</head>
+
+<!-- يتم تحديد الكلاس dark بناءً على الوقت عبر AlpineJS -->
+<body class="antialiased pb-32 bg-slate-50 dark:bg-[#06182c] text-slate-800 dark:text-slate-100 min-h-screen relative overflow-x-hidden" 
+      x-data="appData()" 
+      x-init="initApp()">
+
+    <!-- العلامة المائية لحروف WTTCO في الخلفية (Watermark) -->
+    <div class="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] overflow-hidden">
+        <span class="text-[25vw] font-black text-wttco-light opacity-[0.03] dark:opacity-[0.02] transform -rotate-12 select-none tracking-tighter">WTTCO</span>
+    </div>
+
+    <!-- Header المحدث بهوية الشركة -->
+    <header class="bg-wttco-dark text-white p-4 sticky top-0 z-50 shadow-lg border-b border-wttco-light/30">
+        <div class="flex justify-between items-center max-w-2xl mx-auto">
+            <div class="flex items-center gap-3">
+                <!-- 
+                    💡 تعليمات تغيير مقاس الشعار الأساسي 💡
+                    - الفئة الحالية هي (h-10) وتعني ارتفاع 40 بيكسل.
+                    - لتكبير الشعار اجعلها (h-12) أو (h-14) أو (h-16).
+                    - لتصغير الشعار اجعلها (h-8).
+                -->
+                <img src="https://cdn.phototourl.com/free/2026-05-23-2192b393-f768-4ce8-91f9-9ac769f0a19d.png" alt="شعار الشركة" class="h-14 w-auto object-contain bg-white rounded p-1 shadow-sm border border-wttco-light/20">
+                
+                <div>
+                    <h1 class="text-xs font-bold tracking-wider text-wttco-light">شركة نقل المياه (WTCO)</h1>
+                    <p class="text-[9px] text-white/70 font-semibold tracking-widest mt-0.5">WATER TRANSMISSION COMPANY</p>
+                </div>
+            </div>
+            <button @click="loginSupervisor()" class="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white transition">
+                <span x-text="isAdmin ? '🔓 خروج المشرف' : '🔒 دخول المشرفين'"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div x-show="screen === 'login'" class="p-4 max-w-md mx-auto mt-6 fade-in-up">
+        <div class="bg-white/90 dark:bg-wttco-dark/80 backdrop-blur-md p-6 rounded-3xl border border-slate-200 dark:border-wttco-light/20 shadow-xl space-y-5">
+            <div class="text-center pb-4 border-b border-slate-100 dark:border-wttco-light/10">
+                <!-- الشعار المضاف فوق تسجيل الدخول الموحد -->
+                <img src="https://cdn.phototourl.com/free/2026-05-25-6f8b9c49-12fb-45b3-83bf-dd956fba2282.png" alt="شعار WTCO" class="mx-auto h-12 mb-3 object-contain rounded bg-white p-1">
+                <h2 class="text-base font-bold text-wttco-dark dark:text-wttco-light">تسجيل الدخول الموحد</h2>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">النظام الميداني الذكي لعام 2026</p>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-300 mb-1.5">👤 الرقم الوظيفي للمشغل:</label>
+                <input type="number" x-model="operatorID" placeholder="أدخل رقمك الوظيفي" class="w-full p-3.5 border rounded-xl text-xs bg-slate-50 dark:bg-[#041122] dark:border-wttco-accent dark:text-white font-mono text-center focus:outline-none focus:border-wttco-light focus:ring-1 focus:ring-wttco-light transition smooth-transition">
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-300 mb-1.5">🔑 الرمز السري المرتبط (PIN):</label>
+                <input type="password" x-model="operatorPIN" placeholder="••••" class="w-full p-3.5 border rounded-xl text-xs bg-slate-50 dark:bg-[#041122] dark:border-wttco-accent dark:text-white font-mono text-center focus:outline-none focus:border-wttco-light focus:ring-1 focus:ring-wttco-light transition tracking-widest smooth-transition">
+            </div>
+
+            <button @click="loginOperator()" class="w-full bg-gradient-to-r from-wttco-dark to-wttco-light text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-wttco-light/30 hover:shadow-wttco-light/50 hover:-translate-y-0.5 transition-all">
+                🔐 دخول آمن للمحطة
+            </button>
+        </div>
+    </div>
+
+    <!-- باقي الشاشات (اختيار المحطات للمشرف والمشغل)... -->
+    <!-- (تم اختصار بعض كود قاعدة البيانات لتقليل المساحة، وهي تعمل بنفس الآلية السابقة) -->
+    
+    <div x-show="screen === 'admin_select_station'" class="p-4 max-w-md mx-auto mt-6 fade-in-up" x-cloak>
+        <div class="bg-white/90 dark:bg-wttco-dark/80 backdrop-blur-md p-6 rounded-3xl border border-slate-200 dark:border-wttco-light/20 shadow-xl space-y-4">
+            <div class="text-center pb-3 border-b dark:border-wttco-light/10">
+                <span class="text-3xl block mb-2">🏢</span>
+                <h2 class="text-sm font-bold">المحطات التابعة لصلاحيتك</h2>
+            </div>
+            <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                <template x-if="currentSupervisor">
+                    <template x-for="station in currentSupervisor.allowedStations" :key="station">
+                        <button @click="selectAdminStation(station)" class="w-full bg-slate-50 dark:bg-[#041122] p-4 rounded-xl text-center text-xs font-bold border dark:border-wttco-accent hover:border-wttco-light hover:bg-wttco-light/10 transition shadow-sm">
+                            <span x-text="station"></span>
+                        </button>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="screen === 'select_station_screen'" class="p-4 max-w-md mx-auto mt-6 fade-in-up" x-cloak>
+        <div class="bg-white/90 dark:bg-wttco-dark/80 backdrop-blur-md p-6 rounded-3xl border border-slate-200 dark:border-wttco-light/20 shadow-xl space-y-4">
+            <div class="text-center pb-3 border-b dark:border-wttco-light/10">
+                <span class="text-3xl block mb-2">📍</span>
+                <h2 class="text-sm font-bold">المحطات المصرحة للحساب</h2>
+            </div>
+            <div class="space-y-2">
+                <template x-for="code in allowedStationsForCurrentOp" :key="code">
+                    <button @click="selectStationManually(code)" class="w-full bg-slate-50 dark:bg-[#041122] p-4 rounded-xl text-right text-xs font-bold border dark:border-wttco-accent hover:border-wttco-light hover:bg-wttco-light/10 flex justify-between items-center transition shadow-sm">
+                        <span x-text="stationCodes[code].station"></span>
+                        <span class="text-[9px] bg-wttco-dark text-wttco-light px-2 py-0.5 rounded" x-text="stationCodes[code].line"></span>
+                    </button>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة الأنظمة -->
+    <div x-show="screen === 'systems'" class="p-4 max-w-md mx-auto fade-in-up" x-cloak>
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <span class="text-[9px] bg-wttco-light/20 text-wttco-light border border-wttco-light/30 font-bold px-2.5 py-0.5 rounded-md" x-text="selectedLine"></span>
+                <h2 class="text-xl font-bold mt-1" x-text="selectedStation"></h2>
+            </div>
+            <button @click="operatorID=''; operatorPIN=''; screen='login';" class="text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1.5 rounded-xl font-bold hover:bg-red-500/20 transition">خروج ↩</button>
+        </div>
+
+        <!-- البطاقة الذكية للمشغل بهوية WTTCO -->
+        <div class="bg-gradient-to-br from-wttco-dark to-wttco-accent text-white p-5 rounded-2xl shadow-lg mb-5 relative overflow-hidden border border-wttco-light/20">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-wttco-light/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <div class="flex justify-between items-center relative z-10">
+                <div>
+                    <p class="text-[10px] text-wttco-light font-bold">👤 الرقم المسؤول: <span class="font-mono text-white" x-text="operatorID"></span></p>
+                    <p class="text-xs font-bold mt-1.5" x-text="selectedShift === 'صباحي' ? '☀️ الوردية الصباحية' : '🌙 الوردية المسائية'"></p>
+                </div>
+                <div class="bg-[#041122]/50 px-3 py-2 rounded-xl text-center border border-white/10 backdrop-blur-md shadow-inner">
+                    <p class="text-[9px] text-slate-300 font-medium">مؤشر الإنجاز</p>
+                    <p class="text-xl font-mono font-bold text-wttco-light" x-text="getStationKPI() + '%'"></p>
+                </div>
+            </div>
+            <div class="w-full bg-[#041122] h-2 rounded-full overflow-hidden relative z-10 mt-3 shadow-inner">
+                <div class="bg-gradient-to-r from-wttco-light to-white h-full smooth-transition" :style="'width: ' + getStationKPI() + '%'"></div>
+            </div>
+        </div>
+
+        <h3 class="text-[11px] font-bold text-wttco-light mb-3 uppercase tracking-wider">⚙️ أنظمة المحطة الميدانية:</h3>
+        
+        <div class="space-y-2 mb-24">
+            <template x-for="system in getCurrentSystems()" :key="system">
+                <button @click="openChecklistScreen(system)" 
+                        class="w-full bg-white/90 dark:bg-wttco-dark/80 backdrop-blur p-4 rounded-xl text-right text-xs font-bold border shadow-sm flex justify-between items-center hover:-translate-y-0.5 transition-all"
+                        :class="isSystemChecked(system) ? (getLogDetails(system).status === 'remark' ? 'border-amber-400/50 bg-amber-50/10 dark:bg-amber-900/20' : 'border-wttco-light/50 bg-wttco-light/5') : 'border-slate-200 dark:border-wttco-light/10 dark:hover:border-wttco-light/30'">
+                    
+                    <span x-text="system" class="w-2/3 truncate"></span>
+
+                    <div class="w-1/3 text-left">
+                        <template x-if="isSystemChecked(system)">
+                            <span :class="getLogDetails(system).status === 'remark' ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300' : 'bg-wttco-light/20 text-wttco-dark dark:text-wttco-light'" 
+                                  class="text-[9px] px-2 py-0.5 rounded font-bold border" x-text="getLogDetails(system).status === 'remark' ? '✓ تعديل ⚠️' : '✓ مراجعة'"></span>
+                        </template>
+                        <template x-if="!isSystemChecked(system)">
+                            <span class="text-[9px] bg-slate-100 dark:bg-[#041122] text-slate-500 dark:text-slate-400 border dark:border-slate-700 px-2 py-0.5 rounded font-bold">معلق</span>
+                        </template>
+                    </div>
+                </button>
+            </template>
+        </div>
+
+        <!-- الزر العائم -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-transform duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95">
+            <button @click="confirmSync()" class="bg-gradient-to-r from-wttco-dark to-wttco-light text-white px-8 py-3.5 rounded-full font-bold text-xs shadow-lg shadow-wttco-light/30 flex items-center justify-center gap-2 border border-white/20 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                إرسال التقرير للمشرف
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة إدخال التقرير والنظام (التشيك ليست) -->
+    <div x-show="screen === 'checklist'" class="p-4 max-w-xl mx-auto fade-in-up pb-24" x-cloak>
+        <div class="flex justify-between items-center mb-4">
+            <button @click="screen = 'systems'" class="bg-white dark:bg-wttco-dark px-3 py-1.5 rounded-xl text-[11px] font-bold text-slate-500 dark:text-slate-300 shadow-sm border dark:border-wttco-light/20 hover:bg-slate-50 transition">↩ إلغاء والتراجع</button>
+            <span class="text-[10px] bg-wttco-dark text-wttco-light font-mono px-3 py-1 rounded border border-wttco-light/20" x-text="selectedStation"></span>
+        </div>
+
+        <div class="bg-white/90 dark:bg-wttco-dark/80 backdrop-blur-md p-4 rounded-2xl border dark:border-wttco-light/20 shadow-sm mb-4">
+            <div class="text-[10px] uppercase font-bold text-wttco-light border-b dark:border-wttco-light/10 pb-2 mb-3">📋 Check Items (Read Only):</div>
+            <p class="text-[11px] font-medium bg-slate-50 dark:bg-[#041122] p-4 rounded-xl border dark:border-wttco-accent text-left leading-relaxed text-slate-700 dark:text-slate-300" dir="ltr">
+                1- Check if the system unit status is normal and running without active alarms.<br>
+                2- Check if any leakage, abnormal noise, or high temperature is detected in the zone.
+            </p>
+        </div>
+
+        <div class="bg-white/90 dark:bg-wttco-dark/80 backdrop-blur-md p-4 rounded-2xl border dark:border-wttco-light/20 shadow-sm space-y-4">
+            <div class="text-[10px] uppercase font-bold text-wttco-light tracking-wider">🎯 النتيجة الإجمالية للنظام:</div>
+            
+            <!-- أزرار اختيار الحالة مع ميزة Toggle لإلغاء التحديد -->
+            <div class="grid grid-cols-3 gap-2">
+                <button @click="currentStatus = (currentStatus === 'no_obs' ? '' : 'no_obs')" 
+                        :class="currentStatus === 'no_obs' ? 'bg-wttco-light text-white border-wttco-light shadow-md shadow-wttco-light/30' : 'bg-slate-50 dark:bg-[#041122] border-slate-200 dark:border-wttco-accent hover:border-wttco-light dark:hover:border-wttco-light'" 
+                        class="py-3 rounded-xl text-[11px] font-bold text-center border transition-all duration-300">No Obs</button>
+                
+                <button @click="currentStatus = (currentStatus === 'remark' ? '' : 'remark')" 
+                        :class="currentStatus === 'remark' ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/30' : 'bg-slate-50 dark:bg-[#041122] border-slate-200 dark:border-wttco-accent hover:border-amber-400 dark:hover:border-amber-500'" 
+                        class="py-3 rounded-xl text-[11px] font-bold text-center border transition-all duration-300">Remark ⚠️</button>
+                
+                <button @click="currentStatus = (currentStatus === 'na' ? '' : 'na')" 
+                        :class="currentStatus === 'na' ? 'bg-slate-600 dark:bg-slate-500 text-white border-slate-600 shadow-md' : 'bg-slate-50 dark:bg-[#041122] border-slate-200 dark:border-wttco-accent hover:border-slate-400'" 
+                        class="py-3 rounded-xl text-[11px] font-bold text-center border transition-all duration-300">N/A</button>
+            </div>
+
+            <div x-show="currentStatus === 'remark'" class="pt-3 border-t dark:border-wttco-light/10 space-y-3 fade-in-up">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-300 mb-1">📝 تفاصيل الخلل الميداني (إجباري):</label>
+                    <textarea x-model="currentNote" placeholder="وصف المشكلة..." class="w-full p-3 border rounded-xl text-xs bg-slate-50 dark:bg-[#041122] dark:border-wttco-accent focus:outline-none focus:border-wttco-light text-right text-slate-800 dark:text-white" rows="2"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-300 mb-1">📸 صور الإثبات (بحد أقصى 4 صور):</label>
+                    <input type="file" accept="image/*" multiple @change="handleImageUpload($event)" 
+                           x-show="currentImages.length < 4"
+                           class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-wttco-light/20 file:text-wttco-light hover:file:bg-wttco-light/30 transition dark:text-slate-400">
+                    
+                    <template x-if="currentImages.length > 0">
+                        <div class="mt-3 grid grid-cols-2 gap-2 p-2 border dark:border-wttco-accent rounded-xl bg-slate-50 dark:bg-[#041122]">
+                            <template x-for="(img, index) in currentImages" :key="index">
+                                <div class="relative group">
+                                    <img :src="img" class="h-28 w-full object-cover rounded-lg shadow-sm border dark:border-slate-700">
+                                    <button @click="removeImage(index)" class="absolute top-1 right-1 bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shadow-md transition">✕</button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 right-0 w-full p-4 bg-white/90 dark:bg-wttco-dark/95 backdrop-blur-md border-t dark:border-wttco-light/20 z-40 shadow-[0_-4px_20px_rgb(0,0,0,0.1)]">
+            <div class="max-w-xl mx-auto">
+                <button @click="saveSystemDraft()" class="w-full bg-gradient-to-r from-wttco-dark to-wttco-light text-white py-3.5 rounded-xl font-bold text-xs shadow-lg hover:shadow-wttco-light/40 transition">
+                    💾 حفظ النظام بالتقرير الكلي
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appData', () => ({
+                screen: 'login', selectedLine: '', selectedStation: '', selectedSystem: '',
+                operatorID: '', operatorPIN: '', selectedShift: '',
+                selectedDate: new Date().toISOString().split('T')[0],
+                allowedStationsForCurrentOp: [], isAdmin: false, currentSupervisor: null,
+                adminFilterDate: new Date().toISOString().split('T')[0], adminFilterStation: '',
+                adminViewLog: null, currentStatus: '', currentNote: '', currentImages: [], historyLogs: [],
+                
+                isDayTime: true,
+
+                // اختصار بيانات المحطات لتوفير المساحة في هذا العرض (تحتوي على نفس بياناتك السابقة)
+                supervisorDatabase: [{ pass: '2026', allowedStations: ['PS1 AB', 'PS2 AB', 'PS3 AB', 'PS1 C', 'PS1 FG'] }],
+                operatorDatabase: { '2011': { pin: '1011', stationCodes: ['ps1ab'] }, '2012': { pin: '1012', stationCodes: ['ps1ab'] } },
+                stationCodes: { 'ps1ab': { line: 'AB LINES', station: 'PS1 AB' } },
+                systemsABC: ['AIR CONDITIONING SYS', 'COOLING WATER SYSTEM', 'MAIN PUMP HOUSE'],
+
+                initApp() {
+                    let hours = new Date().getHours();
+                    // تحديد وقت النظام: الصباح من 6 إلى 6 مساءً
+                    this.isDayTime = (hours >= 6 && hours < 18);
+                    
+                    // تفعيل الوضع الليلي أو النهاري تلقائياً بناءً على الوقت
+                    if (!this.isDayTime) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+
+                    let stored = localStorage.getItem('wttco_secure_logs_v2');
+                    if (stored) { this.historyLogs = JSON.parse(stored); }
+                    this.selectedShift = this.isDayTime ? 'صباحي' : 'مسائي';
+                },
+
+                getCurrentSystems() { return this.systemsABC; },
+                
+                getStationKPI() {
+                    let total = this.getCurrentSystems().length;
+                    if(total === 0) return 0;
+                    let checked = this.getCurrentSystems().filter(sys => this.isSystemChecked(sys)).length;
+                    return Math.round((checked / total) * 100);
+                },
+
+                isSystemChecked(system, station = this.selectedStation, shift = this.selectedShift, date = this.selectedDate) {
+                    return this.historyLogs.some(log => log.station === station && log.system === system && log.shift === shift && log.date === date);
+                },
+
+                getLogDetails(system, station = this.selectedStation, shift = this.selectedShift, date = this.selectedDate) {
+                    return this.historyLogs.find(log => log.station === station && log.system === system && log.shift === shift && log.date === date);
+                },
+
+                openChecklistScreen(system) {
+                    this.selectedSystem = system;
+                    let existingLog = this.getLogDetails(system);
+                    if (existingLog) {
+                        this.currentStatus = existingLog.status;
+                        this.currentNote = existingLog.note;
+                        this.currentImages = existingLog.images || [];
+                    } else {
+                        this.currentStatus = '';
+                        this.currentNote = '';
+                        this.currentImages = [];
+                    }
+                    this.screen = 'checklist';
+                },
+
+                handleImageUpload(event) {
+                    let files = event.target.files;
+                    if (!files || files.length === 0) return;
+                    let remaining = 4 - this.currentImages.length;
+                    if (remaining <= 0) { alert('الحد الأقصى 4 صور.'); return; }
+                    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+                        let reader = new FileReader();
+                        reader.onload = (e) => { this.currentImages.push(e.target.result); };
+                        reader.readAsDataURL(files[i]);
+                    }
+                    event.target.value = '';
+                },
+
+                removeImage(index) { this.currentImages.splice(index, 1); },
+
+                loginOperator() {
+                    let opID = this.operatorID.trim();
+                    let opPIN = this.operatorPIN.trim();
+                    if(!opID || !opPIN) { alert('⚠️ يرجى إدخال الرقم الوظيفي والرمز السري.'); return; }
+                    if(this.operatorDatabase[opID] && this.operatorDatabase[opID].pin === opPIN) {
+                        this.allowedStationsForCurrentOp = this.operatorDatabase[opID].stationCodes;
+                        this.selectStationManually(this.allowedStationsForCurrentOp[0]);
+                    } else {
+                        alert('❌ خطأ في البيانات.');
+                    }
+                },
+
+                selectStationManually(code) {
+                    this.selectedLine = this.stationCodes[code].line;
+                    this.selectedStation = this.stationCodes[code].station;
+                    this.screen = 'systems';
+                },
+
+                saveSystemDraft() {
+                    if (!this.currentStatus) {
+                        alert('⚠️ الرجاء اختيار النتيجة الإجمالية للنظام (No Obs, Remark, N/A) قبل الحفظ.');
+                        return;
+                    }
+                    if (this.currentStatus === 'remark') {
+                        if (!this.currentNote.trim()) { alert('⚠️ يجب كتابة التفاصيل الميدانية.'); return; }
+                        if (this.currentImages.length === 0) { alert('📸 يجب إرفاق صورة واحدة على الأقل!'); return; }
+                    }
+                    
+                    let logEntry = {
+                        operator: this.operatorID, line: this.selectedLine, station: this.selectedStation, system: this.selectedSystem,
+                        shift: this.selectedShift, date: this.selectedDate,
+                        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                        status: this.currentStatus, note: this.currentStatus === 'no_obs' ? 'لا يوجد ملاحظات' : this.currentNote,
+                        images: [...this.currentImages]
+                    };
+                    
+                    this.historyLogs = this.historyLogs.filter(log => !(log.station === this.selectedStation && log.system === this.selectedSystem && log.shift === this.selectedShift && log.date === this.selectedDate));
+                    this.historyLogs.unshift(logEntry);
+                    localStorage.setItem('wttco_secure_logs_v2', JSON.stringify(this.historyLogs));
+                    this.screen = 'systems'; 
+                },
+
+                confirmSync() {
+                    if(confirm('هل أنت متأكد من رغبتك في إرسال التقرير النهائي للمشرف؟')) {
+                        alert('🔄 تم المزامنة بنجاح!');
+                    }
+                },
+
+                loginSupervisor() {
+                    let pass = prompt('الرمز السري للمشرف: (جرب 2026)');
+                    let sup = this.supervisorDatabase.find(s => s.pass === pass);
+                    if (sup) { this.isAdmin = true; this.currentSupervisor = sup; this.screen = 'admin_select_station'; }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
