@@ -1,663 +1,852 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة WTC الميدانية المتكاملة | 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght=300;400;500;700&display=swap');
-        body { font-family: 'Noto Kufi Arabic', sans-serif; background-color: #f8fafc; }
-        
-        /* إخفاء أسهم حقول الأرقام لتصميم عصري */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none; 
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield; /* لمتصفح فايرفوكس */
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة WTC الميدانية | 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wtc-dark:  #001F3A;
+            --wtc-navy:  #003B5C;
+            --wtc-blue:  #0077B6;
+            --wtc-cyan:  #00B4D8;
+            --wtc-light: #90E0EF;
+            --wtc-bg:    #F0F8FF;
+            --wtc-accent:#00CFE8;
+        }
+        * { font-family: 'IBM Plex Sans Arabic', sans-serif; box-sizing: border-box; }
+        body { background: var(--wtc-bg); color: #0d2137; -webkit-font-smoothing: antialiased; margin:0; }
 
-        /* أنيميشن مخصصة لحركة نبض الشعار في الانترو */
-        @keyframes pulse-slow {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.04); opacity: 1; }
-        }
-        .animate-pulse-slow {
-            animation: pulse-slow 3s infinite ease-in-out;
-        }
-    </style>
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+        input[type="number"] { -moz-appearance:textfield; }
+
+        /* ── Splash ── */
+        #splash {
+            position:fixed; inset:0; z-index:9999;
+            background: var(--wtc-dark);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            overflow:hidden;
+        }
+        .sp-grid {
+            position:absolute; inset:0;
+            background-image: linear-gradient(rgba(0,180,216,.04) 1px,transparent 1px),
+                              linear-gradient(90deg,rgba(0,180,216,.04) 1px,transparent 1px);
+            background-size:40px 40px;
+        }
+        .sp-glow {
+            position:absolute; inset:0;
+            background: radial-gradient(ellipse at 20% 80%,rgba(0,180,216,.15) 0%,transparent 50%),
+                        radial-gradient(ellipse at 80% 20%,rgba(0,95,142,.2) 0%,transparent 50%);
+        }
+        .sp-ripple {
+            position:absolute; border-radius:50%;
+            border:1px solid rgba(0,180,216,.12);
+            animation: ripple 5s ease-out infinite;
+        }
+        .sp-ripple:nth-child(1){width:280px;height:280px;animation-delay:0s}
+        .sp-ripple:nth-child(2){width:480px;height:480px;animation-delay:1.4s}
+        .sp-ripple:nth-child(3){width:680px;height:680px;animation-delay:2.8s}
+        @keyframes ripple { 0%{transform:scale(.5);opacity:.5} 100%{transform:scale(1.6);opacity:0} }
+
+        .sp-content { position:relative; z-index:10; text-align:center; display:flex; flex-direction:column; align-items:center; gap:20px; }
+
+        .sp-ring { position:relative; width:120px; height:120px; }
+        .sp-ring svg { position:absolute; inset:0; animation: rotate 8s linear infinite; }
+        @keyframes rotate { to { transform:rotate(360deg); } }
+        .sp-logo-box {
+            position:absolute; inset:14px; border-radius:50%;
+            background:rgba(0,95,142,.25); backdrop-filter:blur(6px);
+            border:1px solid rgba(0,180,216,.25);
+            display:flex; align-items:center; justify-content:center; overflow:hidden;
+        }
+        .sp-logo-box img { width:62px; height:62px; object-fit:contain; }
+        .sp-logo-fallback { color:var(--wtc-cyan); font-size:22px; font-weight:900; }
+
+        .sp-title {
+            color:rgba(255,255,255,.85); font-size:13px; font-weight:500; letter-spacing:.05em;
+            opacity:0; animation: fadeUp .7s ease forwards .4s;
+        }
+        .sp-company { opacity:0; animation: fadeUp .7s ease forwards .7s; }
+        .sp-company-ar { font-size:11px; font-weight:600; color:rgba(255,255,255,.8); }
+        .sp-company-en { font-size:8px; font-weight:300; color:var(--wtc-cyan); letter-spacing:.2em; text-transform:uppercase; margin-top:3px; }
+
+        .sp-bar-wrap { width:180px; opacity:0; animation: fadeUp .7s ease forwards 1s; }
+        .sp-bar-bg { height:2px; background:rgba(255,255,255,.1); border-radius:99px; overflow:hidden; }
+        .sp-bar-fill { height:100%; background:linear-gradient(90deg,var(--wtc-blue),var(--wtc-cyan),var(--wtc-accent)); border-radius:99px; width:0%; animation: fill 1.6s ease forwards 1.2s; }
+        @keyframes fill { to { width:100%; } }
+        .sp-bar-text { font-size:8px; color:rgba(255,255,255,.3); letter-spacing:.18em; text-align:center; margin-top:7px; font-weight:300; }
+
+        .sp-year { position:absolute; bottom:28px; font-size:8px; color:rgba(255,255,255,.15); letter-spacing:.3em; font-weight:300; opacity:0; animation: fadeUp .7s ease forwards 1.3s; }
+
+        @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+        .sp-title, .sp-company, .sp-bar-wrap { transform:translateY(14px); }
+
+        #splash.out { animation: splashOut .65s ease forwards; }
+        @keyframes splashOut { to { opacity:0; transform:scale(1.03); pointer-events:none; } }
+
+        /* ── Header ── */
+        .wtc-header {
+            background:linear-gradient(135deg, var(--wtc-dark) 0%, var(--wtc-navy) 60%, var(--wtc-blue) 100%);
+            border-bottom:1px solid rgba(0,180,216,.18);
+            position:sticky; top:0; z-index:100;
+            display:flex; justify-content:space-between; align-items:center;
+            padding:10px 16px;
+            box-shadow: 0 2px 16px rgba(0,30,60,.3);
+        }
+        .wtc-header-logo { height:36px; object-fit:contain; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:4px; }
+        .wtc-header-name { font-size:11px; font-weight:700; color:#90E0EF; }
+        .wtc-header-sub  { font-size:7px; font-weight:300; color:rgba(144,224,239,.55); letter-spacing:.18em; text-transform:uppercase; margin-top:2px; }
+        .sup-btn { padding:7px 13px; border-radius:11px; font-size:10px; font-weight:700; background:rgba(255,255,255,.08); color:rgba(255,255,255,.85); border:1px solid rgba(255,255,255,.13); cursor:pointer; transition:all .2s; white-space:nowrap; }
+        .sup-btn:hover { background:rgba(255,255,255,.15); color:white; }
+
+        /* ── Page bg by time ── */
+        .bg-day   { background:linear-gradient(180deg,#e0f2fe 0%,var(--wtc-bg) 45%); min-height:calc(100vh - 56px); }
+        .bg-night { background:linear-gradient(180deg,#001e3c 0%,#002d55 35%,#0d2137 65%,var(--wtc-bg) 100%); min-height:calc(100vh - 56px); }
+
+        /* ── Cards ── */
+        .card { background:white; border:1.5px solid rgba(0,95,142,.1); border-radius:22px; box-shadow:0 4px 24px rgba(0,59,92,.08); }
+        .card-dark { background:linear-gradient(135deg,var(--wtc-dark),var(--wtc-navy)); border:1px solid rgba(0,180,216,.15); border-radius:20px; box-shadow:0 6px 24px rgba(0,30,60,.3); position:relative; overflow:hidden; }
+        .card-dark::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; background:radial-gradient(circle,rgba(0,180,216,.18),transparent 70%); border-radius:50%; }
+
+        /* ── Input ── */
+        .wtc-input { width:100%; padding:13px 16px; border:1.5px solid rgba(0,95,142,.18); border-radius:13px; font-size:12px; font-family:'IBM Plex Sans Arabic',sans-serif; background:rgba(240,248,255,.7); color:var(--wtc-navy); text-align:center; outline:none; transition:all .2s; }
+        .wtc-input:focus { border-color:var(--wtc-blue); background:white; box-shadow:0 0 0 3px rgba(0,119,182,.12); }
+        select.wtc-input { cursor:pointer; }
+        textarea.wtc-input { text-align:right; resize:none; }
+
+        /* ── Buttons ── */
+        .btn-primary { width:100%; padding:14px 20px; background:linear-gradient(135deg,var(--wtc-navy),var(--wtc-blue)); color:white; border:none; border-radius:13px; font-size:12px; font-weight:700; font-family:'IBM Plex Sans Arabic',sans-serif; cursor:pointer; transition:all .25s; box-shadow:0 4px 18px rgba(0,95,142,.35); }
+        .btn-primary:hover { transform:translateY(-1px); box-shadow:0 7px 26px rgba(0,95,142,.45); }
+        .btn-primary:active { transform:scale(.98); }
+
+        .btn-exit { font-size:10px; background:#fee2e2; color:#991b1b; border:none; padding:8px 13px; border-radius:11px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans Arabic',sans-serif; transition:all .2s; }
+        .btn-exit:hover { background:#fecaca; }
+        .btn-back { background:white; padding:8px 13px; border-radius:11px; font-size:10px; font-weight:700; color:#64748b; border:1.5px solid rgba(0,95,142,.12); cursor:pointer; font-family:'IBM Plex Sans Arabic',sans-serif; box-shadow:0 1px 4px rgba(0,30,60,.06); transition:all .2s; }
+
+        /* ── Status buttons ── */
+        .s-btn { padding:12px 6px; border-radius:13px; font-size:10px; font-weight:700; text-align:center; border:1.5px solid rgba(0,95,142,.1); background:#f0f8ff; color:#475569; cursor:pointer; transition:all .2s; font-family:'IBM Plex Sans Arabic',sans-serif; }
+        .s-btn.ok   { background:#064e3b; color:white; border-color:#064e3b; }
+        .s-btn.rem  { background:#92400e; color:white; border-color:#78350f; }
+        .s-btn.na   { background:#1e3a5f; color:white; border-color:#1e3a5f; }
+
+        /* ── System cards ── */
+        .sys-card { background:white; border:1.5px solid rgba(0,95,142,.1); border-radius:15px; padding:13px 15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all .2s; box-shadow:0 1px 4px rgba(0,59,92,.05); }
+        .sys-card:hover { background:#f0f8ff; border-color:rgba(0,119,182,.25); }
+        .sys-card.ok  { border-color:rgba(16,185,129,.3); background:rgba(240,253,244,.7); }
+        .sys-card.rem { border-color:rgba(245,158,11,.35); background:rgba(255,251,235,.7); }
+
+        /* ── Badges ── */
+        .badge { display:inline-block; padding:3px 9px; border-radius:99px; font-size:9px; font-weight:700; }
+        .b-ok   { background:#d1fae5; color:#065f46; }
+        .b-rem  { background:#fef3c7; color:#92400e; }
+        .b-pend { background:#fee2e2; color:#991b1b; }
+        .b-live { background:rgba(0,180,216,.15); color:var(--wtc-blue); }
+        .line-badge { display:inline-block; font-size:8px; font-weight:700; padding:3px 9px; border-radius:6px; background:rgba(0,180,216,.12); color:var(--wtc-cyan); border:1px solid rgba(0,180,216,.2); letter-spacing:.08em; }
+
+        /* ── Progress ── */
+        .prog-fill { background:linear-gradient(90deg,var(--wtc-blue),var(--wtc-cyan)); height:100%; border-radius:99px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+
+        /* ── FAB ── */
+        .fab { background:linear-gradient(135deg,var(--wtc-navy),var(--wtc-blue)); border-radius:50px; padding:13px 26px; color:white; font-weight:700; font-size:11px; border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 28px rgba(0,30,60,.35); display:flex; align-items:center; gap:8px; cursor:pointer; transition:all .25s; font-family:'IBM Plex Sans Arabic',sans-serif; }
+        .fab:hover { transform:translateY(-2px); box-shadow:0 12px 34px rgba(0,30,60,.45); }
+
+        /* ── Sticky save bar ── */
+        .save-bar { position:fixed; bottom:0; right:0; width:100%; padding:14px; background:rgba(255,255,255,.93); backdrop-filter:blur(12px); border-top:1px solid rgba(0,95,142,.1); box-shadow:0 -4px 20px rgba(0,30,60,.07); z-index:40; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width:3px; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,95,142,.25); border-radius:99px; }
+
+        /* ── Transition ── */
+        .fade { transition: opacity .25s ease; }
+
+        /* ── Banner bar (no greeting text) ── */
+        .shift-bar { border-radius:18px; padding:16px 18px; position:relative; overflow:hidden; margin-bottom:18px; }
+        .shift-bar.day   { background:linear-gradient(135deg,var(--wtc-blue),var(--wtc-cyan)); color:white; }
+        .shift-bar.night { background:linear-gradient(135deg,var(--wtc-dark),var(--wtc-navy)); color:white; border:1px solid rgba(0,180,216,.18); }
+        .shift-bar::after { content:''; position:absolute; top:-18px; left:-18px; width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,.06); }
+
+        /* ── Modal overlay ── */
+        .overlay { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,15,40,.75); backdrop-filter:blur(6px); }
+    </style>
 </head>
-<body class="text-slate-800 antialiased pb-32" x-data="{
-    // متغيرات شاشة الانترو والتحميل
-    showIntro: true,
-    introProgress: 0,
-
-    screen: 'login', 
-    selectedLine: '',
-    selectedStation: '',
-    selectedSystem: '',
-    operatorID: '',
-    operatorPIN: '', 
-    selectedShift: '',
-    selectedDate: new Date().toISOString().split('T')[0],
-    
-    allowedStationsForCurrentOp: [],
-    
-    isAdmin: false,
-    currentSupervisor: null,
-    adminFilterDate: new Date().toISOString().split('T')[0],
-    adminFilterStation: '',
-    adminViewLog: null, 
-
-    currentStatus: 'no_obs',
-    currentNote: '',
-    currentImages: [], 
-
-    historyLogs: [], 
-
-    // 1️⃣ جدول المشرفين للمحطات المختلفة
-    supervisorDatabase: [
-        { pass: '1101', allowedStations: ['PS1 AB'] }, { pass: '1102', allowedStations: ['PS2 AB'] }, { pass: '1103', allowedStations: ['PS3 AB'] },
-        { pass: '1104', allowedStations: ['PS4 AB'] }, { pass: '1105', allowedStations: ['PS5 AB'] }, { pass: '1106', allowedStations: ['PS6 AB'] },
-        { pass: '1107', allowedStations: ['HPT AB'] }, { pass: '1108', allowedStations: ['PS1 C'] }, { pass: '1109', allowedStations: ['PS2 C'] },
-        { pass: '1110', allowedStations: ['PS3 C'] }, { pass: '1111', allowedStations: ['HPT C'] }, { pass: '1112', allowedStations: ['PS1 FG'] },
-        { pass: '1113', allowedStations: ['PS2 FG'] }, { pass: '1114', allowedStations: ['PS3 FG'] }, { pass: '1115', allowedStations: ['HPT FG'] },
-        { pass: '2026', allowedStations: ['PS1 AB', 'PS2 AB', 'PS3 AB', 'PS4 AB', 'PS5 AB', 'PS6 AB', 'HPT AB', 'PS1 C', 'PS2 C', 'PS3 C', 'HPT C', 'PS1 FG', 'PS2 FG', 'PS3 FG', 'HPT FG'] }
-    ],
-
-    // 2️⃣ قاعدة البيانات الشاملة لجميع المشغلين
-    operatorDatabase: {
-        '2011': { pin: '1011', stationCodes: ['ps1ab'] }, '2012': { pin: '1012', stationCodes: ['ps1ab'] }, '2013': { pin: '1013', stationCodes: ['ps1ab'] }, '2014': { pin: '1014', stationCodes: ['ps1ab'] }, '2015': { pin: '1015', stationCodes: ['ps1ab'] },
-        '2021': { pin: '1021', stationCodes: ['ps2ab'] }, '2022': { pin: '1022', stationCodes: ['ps2ab'] }, '2023': { pin: '1023', stationCodes: ['ps2ab'] }, '2024': { pin: '1024', stationCodes: ['ps2ab'] }, '2025': { pin: '1025', stationCodes: ['ps2ab'] },
-        '2031': { pin: '1031', stationCodes: ['ps3ab'] }, '2032': { pin: '1032', stationCodes: ['ps3ab'] }, '2033': { pin: '1033', stationCodes: ['ps3ab'] }, '2034': { pin: '1034', stationCodes: ['ps3ab'] }, '2035': { pin: '1035', stationCodes: ['ps3ab'] },
-        '2041': { pin: '1041', stationCodes: ['ps4ab'] }, '2042': { pin: '1042', stationCodes: ['ps4ab'] }, '2043': { pin: '1043', stationCodes: ['ps4ab'] }, '2044': { pin: '1044', stationCodes: ['ps4ab'] }, '2045': { pin: '1045', stationCodes: ['ps4ab'] },
-        '2051': { pin: '1051', stationCodes: ['ps5ab'] }, '2052': { pin: '1052', stationCodes: ['ps5ab'] }, '2053': { pin: '1053', stationCodes: ['ps5ab'] }, '2054': { pin: '1054', stationCodes: ['ps5ab'] }, '2055': { pin: '1055', stationCodes: ['ps5ab'] },
-        '2061': { pin: '1061', stationCodes: ['ps6ab'] }, '2062': { pin: '1062', stationCodes: ['ps6ab'] }, '2063': { pin: '1063', stationCodes: ['ps6ab'] }, '2064': { pin: '1064', stationCodes: ['ps6ab'] }, '2065': { pin: '1065', stationCodes: ['ps6ab'] },
-        '2071': { pin: '1071', stationCodes: ['hptab'] }, '2072': { pin: '1072', stationCodes: ['hptab'] }, '2073': { pin: '1073', stationCodes: ['hptab'] }, '2074': { pin: '1074', stationCodes: ['hptab'] }, '2075': { pin: '1075', stationCodes: ['hptab'] },
-
-        '3011': { pin: '1111', stationCodes: ['ps1c'] },  '3012': { pin: '1112', stationCodes: ['ps1c'] },  '3013': { pin: '1113', stationCodes: ['ps1c'] },  '3014': { pin: '1114', stationCodes: ['ps1c'] },  '3015': { pin: '1115', stationCodes: ['ps1c'] },
-        '3021': { pin: '1121', stationCodes: ['ps2c'] },  '3022': { pin: '1122', stationCodes: ['ps2c'] },  '3023': { pin: '1123', stationCodes: ['ps2c'] },  '3024': { pin: '1124', stationCodes: ['ps2c'] },  '3025': { pin: '1125', stationCodes: ['ps2c'] },
-        '3031': { pin: '1131', stationCodes: ['ps3c'] },  '3032': { pin: '1132', stationCodes: ['ps3c'] },  '3033': { pin: '1133', stationCodes: ['ps3c'] },  '3034': { pin: '1134', stationCodes: ['ps3c'] },  '3035': { pin: '1135', stationCodes: ['ps3c'] },
-        '3041': { pin: '1141', stationCodes: ['hptc'] },  '3042': { pin: '1142', stationCodes: ['hptc'] },  '3043': { pin: '1143', stationCodes: ['hptc'] },  '3044': { pin: '1144', stationCodes: ['hptc'] },  '3045': { pin: '1145', stationCodes: ['hptc'] },
-
-        '4011': { pin: '1211', stationCodes: ['ps1fg'] }, '4012': { pin: '1212', stationCodes: ['ps1fg'] }, '4013': { pin: '1213', stationCodes: ['ps1fg'] }, '4014': { pin: '1214', stationCodes: ['ps1fg'] }, '4015': { pin: '1215', stationCodes: ['ps1fg'] },
-        '4021': { pin: '1221', stationCodes: ['ps2fg'] }, '4022': { pin: '1222', stationCodes: ['ps2fg'] }, '4023': { pin: '1223', stationCodes: ['ps2fg'] }, '4024': { pin: '1224', stationCodes: ['ps2fg'] }, '4025': { pin: '1225', stationCodes: ['ps2fg'] },
-        '4031': { pin: '1231', stationCodes: ['ps3fg'] }, '4032': { pin: '1232', stationCodes: ['ps3fg'] }, '4033': { pin: '1233', stationCodes: ['ps3fg'] }, '4034': { pin: '1234', strokeCodes: ['ps3fg'] }, '4035': { pin: '1235', stationCodes: ['ps3fg'] },
-        '4041': { pin: '1241', stationCodes: ['hptfg'] }, '4042': { pin: '1242', stationCodes: ['hptfg'] }, '4043': { pin: '1243', stationCodes: ['hptfg'] }, '4044': { pin: '1244', stationCodes: ['hptfg'] }, '4045': { pin: '1245', stationCodes: ['hptfg'] },
-        
-        '9001': { pin: '5555', stationCodes: ['ps1ab', 'ps2ab'] }
-    },
-
-    stationCodes: {
-        'ps1ab': { line: 'AB LINES', station: 'PS1 AB' }, 'ps2ab': { line: 'AB LINES', station: 'PS2 AB' }, 'ps3ab': { line: 'AB LINES', station: 'PS3 AB' }, 'ps4ab': { line: 'AB LINES', station: 'PS4 AB' }, 'ps5ab': { line: 'AB LINES', station: 'PS5 AB' }, 'ps6ab': { line: 'AB LINES', station: 'PS6 AB' }, 'hptab': { line: 'AB LINES', station: 'HPT AB' },
-        'ps1c':  { line: 'C LINES',  station: 'PS1 C' },  'ps2c':  { line: 'C LINES',  station: 'PS2 C' },  'ps3c':  { line: 'C LINES',  station: 'PS3 C' },  'hptc':  { line: 'C LINES',  station: 'HPT C' },
-        'ps1fg': { line: 'FG LINES', station: 'PS1 FG' }, 'ps2fg': { line: 'FG LINES', station: 'PS2 FG' }, 'ps3fg': { line: 'FG LINES', station: 'PS3 FG' }, 'hptfg': { line: 'FG LINES', station: 'HPT FG' }
-    },
-
-    systemsABC: [
-        'AIR CONDITIONING&VENTILATION SYS-1', 'AIR CONDITIONING&VENTILATION SYS-2', 'COOLING WATER SYSTEM', 'DRINKING AND UTILITY', 'ELECTRICAL BUILDING CABLE CELLAER', 'EMERGENCY GENERATOR', 'FLOW CONTROL VALVE MAIN', 'LOW VOLTAGE ROOM', 'MAIN PUMP HOUSE', 'MEDIUM VOLTAGE ROOM', 'PRESSUR CONTROL VALVE', 'SEWAGE  SYSTEM', 'STATION BATTERIES ROOM', 'SURGE RELIEF SYSTEM', 'UNIT CONTROL&FEEDBACK EQUIPMENT', 'Scraper'
-    ],
-
-    systemsFG: [
-        'AIR COMPERSSOR SYSTEM', 'BOOSTER PUMP HOUSE', 'COOLING WATER SYSTEM', 'ELECTRICAL VSD BULDING', 'EMERGENCY GENERATOR', 'HV, MV, LV, VSD TRANSFORMERS', 'HVAC AND CHILLERS', 'INLET SURGE VESSEL SYSTEM', 'LOW VOLTAGE ROOM', 'MAIN PUMP HOUSE', 'MEDIUM VOLTAGE ROOM', 'OUTLET SURGE VESSEL SYSTEM', 'PRESSURE RELIEF SYSTEM', 'TANK FARM AREA', 'UTILITY & FIRE DIESEL PUPM SYSTEM'
-    ],
-
-    initStorage() {
-        let stored = localStorage.getItem('wtc_secure_access_logs');
-        if (stored) { this.historyLogs = JSON.parse(stored); }
-        this.checkAndSetShift();
-        this.runIntroAnimation();
-    },
-
-    // ميكانيكية تشغيل الـ Intro والتحميل التلقائي
-    runIntroAnimation() {
-        let interval = setInterval(() => {
-            if (this.introProgress < 100) {
-                this.introProgress += 4; // سرعة الـ Progress Bar
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    this.showIntro = false; // إخفاء شاشة الانترو بالكامل بعد اكتمال التحميل
-                }, 400);
-            }
-        }, 80);
-    },
-
-    checkAndSetShift() {
-        let hours = new Date().getHours();
-        this.selectedShift = (hours >= 6 && hours < 18) ? 'صباحي' : 'مسائي';
-    },
-
-    getCurrentSystems() {
-        let activeStation = this.isAdmin ? this.adminFilterStation : this.selectedStation;
-        if(!activeStation) return [];
-        return activeStation.includes('FG') ? this.systemsFG : this.systemsABC;
-    },
-
-    getStationKPI() {
-        let total = this.getCurrentSystems().length;
-        if(total === 0) return 0;
-        let checked = this.getCurrentSystems().filter(sys => this.isSystemChecked(sys)).length;
-        return Math.round((checked / total) * 100);
-    },
-
-    isSystemChecked(system, station = this.selectedStation, shift = this.selectedShift, date = this.selectedDate) {
-        return this.historyLogs.some(log => log.station === station && log.system === system && log.shift === shift && log.date === date);
-    },
-
-    getLogDetails(system, station = this.selectedStation, shift = this.selectedShift, date = this.selectedDate) {
-        return this.historyLogs.find(log => log.station === station && log.system === system && log.shift === shift && log.date === date);
-    },
-
-    openChecklistScreen(system) {
-        this.selectedSystem = system;
-        let existingLog = this.getLogDetails(system);
-        if (existingLog) {
-            this.currentStatus = existingLog.status;
-            this.currentNote = existingLog.note;
-            this.currentImages = existingLog.images || (existingLog.image ? [existingLog.image] : []);
-        } else {
-            this.currentStatus = 'no_obs';
-            this.currentNote = '';
-            this.currentImages = [];
-        }
-        this.screen = 'checklist';
-    },
-
-    handleImageUpload(event) {
-        let files = event.target.files;
-        if (!files || files.length === 0) return;
-        
-        let remaining = 4 - this.currentImages.length;
-        if (remaining <= 0) {
-            alert('لقد وصلت للحد الأقصى (4 صور). يرجى إزالة صورة لإضافة أخرى.');
-            return;
-        }
-
-        let filesToProcess = Math.min(files.length, remaining);
-        
-        for (let i = 0; i < filesToProcess; i++) {
-            let reader = new FileReader();
-            reader.onload = (e) => { 
-                this.currentImages.push(e.target.result); 
-            };
-            reader.readAsDataURL(files[i]);
-        }
-        
-        event.target.value = '';
-    },
-
-    removeImage(index) {
-        this.currentImages.splice(index, 1);
-    },
-
-    loginOperator() {
-        let opID = this.operatorID.trim();
-        let opPIN = this.operatorPIN.trim();
-
-        if(!opID || !opPIN) {
-            alert('⚠️ يرجى إدخال الرقم الوظيفي والرمز السري.');
-            return;
-        }
-
-        if(!this.operatorDatabase[opID]) {
-            alert('❌ الحساب غير مسجل بنظام محطات WTC.');
-            return;
-        }
-
-        if(this.operatorDatabase[opID].pin !== opPIN) {
-            alert('❌ الرمز السري الشخصي (PIN) غير صحيح!');
-            return;
-        }
-
-        this.checkAndSetShift();
-        let assignedCodes = this.operatorDatabase[opID].stationCodes;
-        this.allowedStationsForCurrentOp = assignedCodes;
-
-        if (assignedCodes.length === 1) {
-            let singleCode = assignedCodes[0];
-            this.selectedLine = this.stationCodes[singleCode].line;
-            this.selectedStation = this.stationCodes[singleCode].station;
-            this.screen = 'systems';
-        } else {
-            this.screen = 'select_station_screen';
-        }
-    },
-
-    selectStationManually(code) {
-        this.selectedLine = this.stationCodes[code].line;
-        this.selectedStation = this.stationCodes[code].station;
-        this.screen = 'systems';
-    },
-
-    saveSystemDraft() {
-        if (this.currentStatus === 'remark') {
-            if (!this.currentNote.trim()) {
-                alert('⚠️ في حالة وجود ملاحظة (Remark)، يجب كتابة التفاصيل الميدانية.');
-                return;
-            }
-            if (this.currentImages.length === 0) {
-                alert('📸 إجباري: يجب إرفاق صورة واحدة على الأقل توضح الملاحظة الفنية المكتشفة!');
-                return;
-            }
-        }
-
-        let now = new Date();
-        let exactTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        let logEntry = {
-            operator: this.operatorID,
-            line: this.selectedLine,
-            station: this.selectedStation,
-            system: this.selectedSystem,
-            shift: this.selectedShift,
-            date: this.selectedDate,
-            time: exactTime,
-            status: this.currentStatus,
-            note: this.currentStatus === 'no_obs' ? 'لا يوجد ملاحظات ' : this.currentNote,
-            images: [...this.currentImages],
-            isSubmitted: true 
-        };
-
-        this.historyLogs = this.historyLogs.filter(log => !(log.station === this.selectedStation && log.system === this.selectedSystem && log.shift === this.selectedShift && log.date === this.selectedDate));
-        this.historyLogs.unshift(logEntry);
-
-        localStorage.setItem('wtc_secure_access_logs', JSON.stringify(this.historyLogs));
-        this.screen = 'systems'; 
-    },
-
-    confirmSync() {
-        if(confirm('هل أنت متأكد من رغبتك في إرسال التقرير النهائي ومزامنته مع المشرف؟')) {
-            this.syncFinalReport();
-        }
-    },
-
-    syncFinalReport() {
-        alert('🔄 تم إرسال ومزامنة التقرير الكلي المحدث مع لوحة التحكم الإدارية للمشرف بنجاح! اللوحة تظل نشطة ومفتوحة للتعديل الفوري حتى نهاية الشفت.');
-    },
-
-    loginSupervisor() {
-        if (this.isAdmin) { 
-            this.isAdmin = false; 
-            this.currentSupervisor = null;
-            this.screen = 'login'; 
-        } else {
-            let pass = prompt('الرجاء إدخال الرمز السري للمشرف:');
-            if (pass === null) return;
-
-            let foundSup = this.supervisorDatabase.find(sup => sup.pass === pass);
-            if (foundSup) {
-                this.isAdmin = true;
-                this.currentSupervisor = foundSup;
-                this.screen = 'admin_select_station';
-            } else {
-                alert('⚠️ الرمز السري للمشرف غير صحيح!');
-            }
-        }
-    },
-
-    selectAdminStation(station) {
-        this.adminFilterStation = station;
-        this.screen = 'history';
-    }
-}" x-init="initStorage()">
-
-    <div x-show="showIntro"
-         x-transition:leave="transition ease-in duration-500"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0 pointer-events-none"
-         class="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-gradient-to-br from-[#0b0f19] via-[#0f172a] to-[#134e4a] text-white p-8 select-none">
-        
-        <div class="w-full text-center mt-8">
-            <span class="text-[10px] tracking-widest text-teal-400/50 block font-mono">SYSTEM INITIALIZATION v4.2</span>
-        </div>
-
-        <div class="flex flex-col items-center max-w-sm text-center">
-            <div class="bg-white/10 p-4 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl mb-5 animate-pulse-slow">
-                <img src="https://cdn.phototourl.com/free/2026-05-25-531ef0be-b99a-4016-a928-effa7a2c41ac.png" alt="WTTCO" class="h-20 w-20 object-contain">
-            </div>
-            <h1 class="text-lg font-bold text-teal-300 tracking-wide">منظومة WTC الميدانية</h1>
-            <p class="text-xs text-slate-300 mt-1 font-light">شركة نقل وتطوير المياه (WTTCO)</p>
-            <p class="text-[11px] bg-teal-950/80 border border-teal-800/40 text-teal-400 px-3 py-1 rounded-full mt-3 font-medium">الجبيل | إصدار التشغيل الآمن 2026</p>
-        </div>
-
-        <div class="w-full max-w-xs mb-12 space-y-3">
-            <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono px-1">
-                <span>جاري الاتصال بقاعدة البيانات...</span>
-                <span x-text="introProgress + '%'" class="text-teal-400 font-bold"></span>
-            </div>
-            <div class="w-full bg-slate-900 h-1.5 rounded-full p-0.5 overflow-hidden border border-white/5">
-                <div class="bg-gradient-to-r from-teal-500 via-teal-300 to-emerald-400 h-full rounded-full transition-all duration-700 ease-out"
-                     :style="'width: ' + introProgress + '%'"></div>
-            </div>
-        </div>
-    </div>
-
-    <header class="bg-gradient-to-r from-slate-900 via-[#134e4a] to-[#0f172a] text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center border-b border-teal-500/20">
-        <div class="flex items-center gap-3">
-            <img src="https://cdn.phototourl.com/free/2026-05-25-531ef0be-b99a-4016-a928-effa7a2c41ac.png" alt="شعار الشركة" class="h-10 object-contain rounded bg-white/10 p-1 backdrop-blur-sm shadow-sm border border-white/20">
-            <div>
-                <h1 class="text-xs font-bold tracking-wider text-teal-300">شركة نقل المياه (WTTCO) - الجبيل</h1>
-                <p class="text-[9px] text-teal-100/70 font-light tracking-widest mt-0.5">WATER TRANSMISSION COMPANY</p>
-            </div>
-        </div>
-        <button @click="loginSupervisor()" class="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white transition">
-            <span x-text="isAdmin ? '🔓 خروج المشرف' : '🔒 دخول المشرفين'"></span>
-        </button>
-    </header>
-
-    <div x-show="screen === 'login'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
-         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-         class="p-6 max-w-md mx-auto mt-6">
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <div class="text-center pb-2 border-b">
-                <span class="text-3xl">🚰</span>
-                <h2 class="text-sm font-bold text-slate-700 mt-2">تسجيل الدخول الموحد</h2>
-                <p class="text-[10px] text-slate-400 mt-1">تحديد نطاق العمل الميداني تلقائياً برقم الهوية</p>
-            </div>
-
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 mb-1">👤 الرقم الوظيفي للمشغل(WTCO) :</label>
-                <input type="number" x-model="operatorID" placeholder="أدخل رقمك الوظيفي المكون من 4 أرقام" class="w-full p-3 border rounded-xl text-xs bg-slate-50 font-mono text-center focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition">
-            </div>
-
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 mb-1">🔑 الرمز السري المرتبط (PIN):</label>
-                <input type="password" x-model="operatorPIN" placeholder="••••" class="w-full p-3 border rounded-xl text-xs bg-slate-50 font-mono text-center focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition tracking-widest">
-            </div>
-
-            <button @click="loginOperator()" class="w-full bg-gradient-to-r from-teal-600 to-[#134e4a] text-white py-3 rounded-xl font-bold text-xs shadow-md hover:shadow-lg transition">
-                🔐 دخول آمن وتحديد المحطة تلقائياً
-            </button>
-        </div>
-    </div>
-
-    <div x-show="screen === 'admin_select_station'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
-         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-         class="p-6 max-w-md mx-auto mt-6">
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <div class="text-center pb-2 border-b">
-                <span class="text-3xl">🏢</span>
-                <h2 class="text-sm font-bold text-slate-700 mt-2">المحطات التابعة لصلاحيتك</h2>
-                <p class="text-[10px] text-slate-400 mt-1">اختر المحطة التي ترغب بمراقبة أنظمتها الميدانية</p>
-            </div>
-            <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
-                <template x-if="currentSupervisor">
-                    <template x-for="station in currentSupervisor.allowedStations" :key="station">
-                        <button @click="selectAdminStation(station)" class="w-full bg-slate-50 p-4 rounded-xl text-center text-xs font-bold border hover:border-teal-500 hover:bg-teal-50 transition text-slate-800 shadow-sm">
-                            <span x-text="station"></span>
-                        </button>
-                    </template>
-                </template>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="screen === 'select_station_screen'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
-         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-         class="p-6 max-w-md mx-auto mt-12">
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <div class="text-center pb-2 border-b">
-                <span class="text-3xl">📍</span>
-                <h2 class="text-sm font-bold text-slate-700 mt-2">المحطات المصرحة للحساب</h2>
-            </div>
-            <div class="space-y-2">
-                <template x-for="code in allowedStationsForCurrentOp" :key="code">
-                    <button @click="selectStationManually(code)" class="w-full bg-slate-50 p-4 rounded-xl text-right text-xs font-bold border hover:border-teal-500 hover:bg-teal-50 flex justify-between items-center transition">
-                        <span class="text-slate-800" x-text="stationCodes[code].station"></span>
-                        <span class="text-[9px] bg-slate-200 px-2 py-0.5 rounded text-slate-500" x-text="stationCodes[code].line"></span>
-                    </button>
-                </template>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="screen === 'systems'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform scale-98"
-         x-transition:enter-end="opacity-100 transform scale-100"
-         class="p-4 max-w-md mx-auto">
-        <div class="flex justify-between items-center mb-3">
-            <div>
-                <span class="text-[9px] bg-teal-50 text-teal-800 border border-teal-200 font-bold px-2.5 py-0.5 rounded-md" x-text="selectedLine"></span>
-                <h2 class="text-xl font-bold text-slate-800 mt-1" x-text="selectedStation"></h2>
-            </div>
-            <button @click="operatorID=''; operatorPIN=''; screen='login';" class="text-[10px] bg-red-50 text-red-600 border px-3 py-1.5 rounded-xl font-bold hover:bg-red-100 transition">خروج ↩</button>
-        </div>
-
-        <div class="bg-gradient-to-br from-[#0f172a] to-[#134e4a] text-white p-4 rounded-2xl shadow-sm mb-4 space-y-3 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
-            <div class="flex justify-between items-center relative z-10">
-                <div>
-                    <p class="text-[10px] text-teal-100 font-bold">👤 الرقم المسؤول: <span class="font-mono text-teal-400" x-text="operatorID"></span></p>
-                    <p class="text-xs font-bold mt-1" x-text="selectedShift === 'صباحي' ? '☀️ الوردية الصباحية' : '🌙 الوردية المسائية'"></p>
-                </div>
-                <div class="bg-slate-900/50 px-3 py-2 rounded-xl text-center border border-white/10 backdrop-blur-md">
-                    <p class="text-[9px] text-slate-300 font-medium">مؤشر الفحص</p>
-                    <p class="text-xl font-mono font-bold text-teal-400" x-text="getStationKPI() + '%'"></p>
-                </div>
-            </div>
-            <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden relative z-10">
-                <div class="bg-gradient-to-r from-teal-500 to-teal-300 h-full transition-all duration-500" :style="'width: ' + getStationKPI() + '%'"></div>
-            </div>
-        </div>
-
-        <div class="p-2 bg-emerald-50 rounded-xl border border-emerald-200 text-[10px] text-emerald-800 font-medium mb-3 text-center">
-            ⚙️ يمكنك تعديل وحفظ أي نظام مراراً وتكراراً؛ التحديثات تصل للمشرف فوراً.
-        </div>
-
-        <h3 class="text-[10px] font-bold text-slate-400 mb-2.5 uppercase tracking-wider">⚙️ أنظمة المحطة الميدانية:</h3>
-        
-        <div class="space-y-2 mb-24">
-            <template x-for="system in getCurrentSystems()" :key="system">
-                <button @click="openChecklistScreen(system)" 
-                        class="w-full bg-white p-4 rounded-xl text-right text-xs font-bold border shadow-sm flex justify-between items-center hover:bg-slate-50 transition duration-200"
-                        :class="isSystemChecked(system) ? (getLogDetails(system).status === 'remark' ? 'border-amber-300 bg-amber-50/10' : 'border-emerald-200 bg-emerald-50/20') : 'border-slate-200'">
-                    
-                    <span x-text="system" class="w-2/3 truncate"></span>
-
-                    <div class="w-1/3 text-left">
-                        <template x-if="isSystemChecked(system)">
-                            <span :class="getLogDetails(system).status === 'remark' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'" 
-                                  class="text-[9px] px-2 py-0.5 rounded font-bold" x-text="getLogDetails(system).status === 'remark' ? '✓ تعديل ⚠️' : '✓ مراجعة'"></span>
-                        </template>
-                        <template x-if="!isSystemChecked(system)">
-                            <span class="text-[9px] bg-rose-50 text-rose-600 border border-rose-100 px-2 py-0.5 rounded font-bold">معلق</span>
-                        </template>
-                    </div>
-                </button>
-            </template>
-        </div>
-
-        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-transform duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95">
-            <button @click="confirmSync()" class="bg-gradient-to-r from-teal-600 to-[#134e4a] text-white px-7 py-3.5 rounded-full font-bold text-xs shadow-[0_8px_30px_rgb(0,0,0,0.15)] flex items-center justify-center gap-2 border border-white/20 whitespace-nowrap">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                </svg>
-                إرسال التقرير للمشرف
-            </button>
-        </div>
-    </div>
-
-    <div x-show="screen === 'checklist'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-x-4"
-         x-transition:enter-end="opacity-100 transform translate-x-0"
-         class="p-4 max-w-xl mx-auto pb-24">
-        <div class="flex justify-between items-center mb-4">
-            <button @click="screen = 'systems'" class="bg-white px-3 py-1.5 rounded-xl text-[11px] font-bold text-slate-500 shadow-sm border hover:bg-slate-50 transition">↩ إلغاء والتراجع</button>
-            <span class="text-[10px] bg-slate-800 text-teal-300 font-mono px-3 py-1 rounded" x-text="selectedStation"></span>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border shadow-sm mb-4">
-            <div class="text-[10px] uppercase font-bold text-slate-400 border-b pb-2 mb-3">📋 Check Items (Read Only):</div>
-            <p class="text-[11px] font-medium text-slate-600 bg-slate-50 p-4 rounded-xl border text-left leading-relaxed" dir="ltr">
-                1- Check if the system unit status is normal and running without active alarms.<br>
-                2- Check if any leakage, abnormal noise, or high temperature is detected in the zone.
-            </p>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-4">
-            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">🎯 النتيجة الإجمالية للنظام:</div>
-            <div class="grid grid-cols-3 gap-2">
-                <button @click="currentStatus = 'no_obs'" :class="currentStatus === 'no_obs' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-50'" class="py-3 rounded-xl text-[10px] text-center border transition">No Obs</button>
-                <button @click="currentStatus = 'remark'" :class="currentStatus === 'remark' ? 'bg-amber-500 text-white font-bold' : 'bg-slate-50'" class="py-3 rounded-xl text-[10px] text-center border transition">Remark ⚠️</button>
-                <button @click="currentStatus = 'na'" :class="currentStatus === 'na' ? 'bg-slate-600 text-white font-bold' : 'bg-slate-50'" class="py-3 rounded-xl text-[10px] text-center border transition">N/A</button>
-            </div>
-
-            <div x-show="currentStatus === 'remark'" class="pt-3 border-t space-y-3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 mb-1">📝 تفاصيل الخلل الميداني (إجباري):</label>
-                    <textarea x-model="currentNote" placeholder="يرجى وصف المشكلة بدقة..." class="w-full p-3 border rounded-xl text-xs bg-slate-50 text-right focus:outline-none focus:border-teal-500" rows="2"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 mb-1">📸 صور الإثبات (بحد أقصى 4 صور):</label>
-                    <input type="file" accept="image/*" multiple @change="handleImageUpload($event)" 
-                           x-show="currentImages.length < 4"
-                           class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition">
-                    
-                    <template x-if="currentImages.length > 0">
-                        <div class="mt-3 grid grid-cols-2 gap-2 p-2 border rounded-xl bg-slate-50">
-                            <template x-for="(img, index) in currentImages" :key="index">
-                                <div class="relative group">
-                                    <img :src="img" class="h-28 w-full object-cover rounded-lg shadow-sm border border-slate-200">
-                                    <button @click="removeImage(index)" class="absolute top-1 right-1 bg-red-500/90 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shadow-md transition">✕</button>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                    <p x-show="currentImages.length >= 4" class="text-[10px] text-rose-500 mt-2 font-bold">تم الوصول للحد الأقصى للصور المرفقة (4).</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="fixed bottom-0 right-0 w-full p-4 bg-white/90 backdrop-blur-md border-t z-40 shadow-[0_-4px_20px_rgb(0,0,0,0.05)]">
-            <div class="max-w-xl mx-auto">
-                <button @click="saveSystemDraft()" class="w-full bg-gradient-to-r from-[#0f172a] to-[#134e4a] text-white py-3.5 rounded-xl font-bold text-xs shadow-md hover:shadow-lg transition">
-                    💾 حفظ وإرسال فوري للمشرف
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="screen === 'history'" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform scale-98"
-         x-transition:enter-end="opacity-100 transform scale-100"
-         class="p-4 max-w-xl mx-auto pb-20">
-        <div class="flex justify-between items-center mb-4 bg-white p-3 rounded-2xl border shadow-sm">
-            <div>
-                <h2 class="text-xs font-bold text-slate-700">📊 شاشة الرقابة اللحظية (المشرف)</h2>
-                <p class="text-[9px] text-teal-600 font-bold mt-0.5">👋 رصد حي لكافة الأنظمة الميدانية</p>
-            </div>
-            <button @click="screen = 'admin_select_station'; adminViewLog = null;" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-xl font-bold transition">المحطات ↩</button>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border shadow-sm mb-4 grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 mb-1">📅 تاريخ التدقيق:</label>
-                <input type="date" x-model="adminFilterDate" class="w-full p-2 border rounded-xl text-xs bg-slate-50 font-mono text-slate-700 focus:outline-none focus:border-teal-500">
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 mb-1">📍 المحطة المراقبة:</label>
-                <select x-model="adminFilterStation" class="w-full p-2 border rounded-xl text-xs bg-slate-50 text-slate-700 focus:outline-none focus:border-teal-500 font-bold">
-                    <template x-if="currentSupervisor">
-                        <template x-for="station in currentSupervisor.allowedStations" :key="station">
-                            <option :value="station" x-text="station"></option>
-                        </template>
-                    </template>
-                </select>
-            </div>
-        </div>
-
-        <div class="space-y-4">
-            <template x-for="currShift in ['صباحي', 'مسائي']" :key="currShift">
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-3 bg-slate-50 flex justify-between items-center border-b font-bold text-xs text-slate-700">
-                        <span x-text="currShift === 'صباحي' ? '☀️ الوردية الصباحية' : '🌙 الوردية المسائية'"></span>
-                    </div>
-
-                    <div class="p-3 space-y-2">
-                        <template x-for="sys in getCurrentSystems()" :key="sys">
-                            <button @click="if(isSystemChecked(sys, adminFilterStation, currShift, adminFilterDate)) { adminViewLog = getLogDetails(sys, adminFilterStation, currShift, adminFilterDate) }"
-                                    class="w-full p-3 rounded-xl border flex justify-between items-center text-xs text-right transition"
-                                    :class="isSystemChecked(sys, adminFilterStation, currShift, adminFilterDate) ? 'bg-emerald-50/40 border-emerald-200 hover:bg-emerald-50' : 'bg-rose-50/30 border-rose-100 cursor-not-allowed'">
-                                
-                                <div class="w-2/3 pr-2">
-                                    <p class="font-bold text-slate-800 truncate" x-text="sys"></p>
-                                    <template x-if="isSystemChecked(sys, adminFilterStation, currShift, adminFilterDate)">
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-[9px] text-slate-400 font-mono">🕒 آخر تحديث: <span class="text-slate-700 font-bold" x-text="getLogDetails(sys, adminFilterStation, currShift, adminFilterDate).time"></span></span>
-                                            <span class="bg-teal-100 text-teal-800 text-[8px] px-1.5 rounded font-bold">📬 رصد حي</span>
-                                        </div>
-                                    </template>
-                                </div>
-
-                                <div>
-                                    <template x-if="isSystemChecked(sys, adminFilterStation, currShift, adminFilterDate)">
-                                        <span :class="getLogDetails(sys, adminFilterStation, currShift, adminFilterDate).status === 'no_obs' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
-                                              class="text-[9px] font-bold px-2 py-0.5 rounded shadow-sm" x-text="getLogDetails(sys, adminFilterStation, currShift, adminFilterDate).status === 'no_obs' ? 'سليم' : 'ملاحظة ⚠️'"></span>
-                                    </template>
-                                    <template x-if="!isSystemChecked(sys, adminFilterStation, currShift, adminFilterDate)">
-                                        <span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold">⚠️ معلق</span>
-                                    </template>
-                                </div>
-                            </button>
-                        </template>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </div>
-
-    <template x-if="adminViewLog">
-        <div class="bg-slate-900/80 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95">
-            <div class="bg-white w-full max-w-md rounded-3xl p-5 space-y-4 text-right shadow-xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="text-xs font-bold text-slate-800 w-5/6 truncate" x-text="adminViewLog.system"></h3>
-                    <button @click="adminViewLog = null" class="text-slate-400 hover:text-rose-500 text-2xl font-bold leading-none transition">×</button>
-                </div>
-                <div class="bg-slate-50 p-3.5 rounded-xl border space-y-2 text-[11px]">
-                    <div>👤 المشغل: <span class="font-mono font-bold text-slate-900" x-text="adminViewLog.operator"></span></div>
-                    <div>📅 التاريخ: <span class="font-mono text-slate-700" x-text="adminViewLog.date"></span></div>
-                    <div>🕒 توقيت الرصد: <span class="font-mono text-teal-600 font-bold" x-text="adminViewLog.time"></span></div>
-                </div>
-                <div>
-                    <span class="text-[10px] font-bold text-slate-400 block mb-1">📝 الملاحظة الميدانية:</span>
-                    <p class="bg-slate-50 p-3 rounded-xl border text-xs text-slate-700" x-text="adminViewLog.note"></p>
-                </div>
-
-                <template x-if="adminViewLog.images && adminViewLog.images.length > 0">
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-400 block mb-1">📸 الصور المرفقة للإثبات:</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <template x-for="(img, idx) in adminViewLog.images" :key="idx">
-                                <img :src="img" class="w-full h-32 object-cover rounded-xl border shadow-sm bg-slate-100 cursor-pointer hover:opacity-90 transition" @click="window.open(img, '_blank')" title="اضغط لتكبير الصورة">
-                            </template>
-                        </div>
-                    </div>
-                </template>
-
-                <button @click="adminViewLog = null" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-bold text-xs transition">إغلاق التقرير</button>
-            </div>
-        </div>
-    </template>
+<body>
+
+<!-- ════ SPLASH ════ -->
+<div id="splash">
+    <div class="sp-grid"></div>
+    <div class="sp-glow"></div>
+    <div class="sp-ripple"></div>
+    <div class="sp-ripple"></div>
+    <div class="sp-ripple"></div>
+    <div class="sp-content">
+        <div class="sp-ring">
+            <svg viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="60" r="55" stroke="url(#rg)" stroke-width="1.5" stroke-dasharray="7 4"/>
+                <defs>
+                    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00B4D8" stop-opacity=".8"/>
+                        <stop offset="50%" stop-color="#003B5C" stop-opacity=".15"/>
+                        <stop offset="100%" stop-color="#00B4D8" stop-opacity=".8"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="sp-logo-box">
+                <!-- *** ضع رابط أو مسار اللوقو PNG هنا في src *** -->
+                <img src="https://cdn.phototourl.com/free/2026-05-25-531ef0be-b99a-4016-a928-effa7a2c41ac.png"
+                     alt="WTC Logo"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="sp-logo-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">WTC</div>
+            </div>
+        </div>
+        <div class="sp-title">منظومة الرصد الميداني المتكاملة</div>
+        <div class="sp-company">
+            <div class="sp-company-ar">شركة نقل المياه (WTTCO) — الجبيل</div>
+            <div class="sp-company-en">Water Transmission Company</div>
+        </div>
+        <div class="sp-bar-wrap">
+            <div class="sp-bar-bg"><div class="sp-bar-fill"></div></div>
+            <div class="sp-bar-text">INITIALIZING FIELD SYSTEM · 2026</div>
+        </div>
+    </div>
+    <div class="sp-year">WTC FIELD OPS · 2026 · JUBAIL INDUSTRIAL CITY</div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app" style="display:none;">
+
+    <!-- HEADER -->
+    <header class="wtc-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <!-- *** مكان اللوقو في الهيدر — غيّر src بمسار ملفك *** -->
+            <img src="https://cdn.phototourl.com/free/2026-05-25-531ef0be-b99a-4016-a928-effa7a2c41ac.png"
+                 alt="WTC" class="wtc-header-logo"
+                 onerror="this.style.display='none'">
+            <div>
+                <div class="wtc-header-name">شركة نقل المياه (WTTCO) — الجبيل</div>
+                <div class="wtc-header-sub">Water Transmission Company</div>
+            </div>
+        </div>
+        <button class="sup-btn" id="supBtn">🔒 دخول المشرفين</button>
+    </header>
+
+    <!-- SCREENS CONTAINER -->
+    <div id="screens" style="padding-bottom:32px;"></div>
+
+</div>
+
+<!-- ════ TEMPLATES ════ -->
+
+<template id="tpl-login">
+<div class="pad">
+    <div class="shift-bar" id="shiftBar">
+        <div style="display:flex;align-items:center;gap:12px;position:relative;z-index:1;">
+            <span style="font-size:24px;" id="shiftIcon"></span>
+            <div>
+                <div style="font-size:14px;font-weight:700;">منظومة WTC الميدانية</div>
+                <div style="font-size:10px;opacity:.75;margin-top:2px;" id="shiftLabel"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="padding:24px;">
+        <div style="text-align:center;padding-bottom:18px;border-bottom:1px solid rgba(0,95,142,.09);margin-bottom:20px;">
+            <div style="width:50px;height:50px;background:linear-gradient(135deg,#003B5C,#0077B6);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#003B5C;">تسجيل الدخول الآمن</div>
+            <div style="font-size:10px;color:#64748b;margin-top:4px;">تحديد نطاق العمل الميداني تلقائياً برقم الهوية</div>
+        </div>
+        <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:10px;font-weight:700;color:#5a7fa0;margin-bottom:6px;">👤 الرقم الوظيفي للمشغل (WTCO)</label>
+            <input type="number" id="inpID" class="wtc-input" placeholder="أدخل رقمك الوظيفي المكون من 4 أرقام">
+        </div>
+        <div style="margin-bottom:18px;">
+            <label style="display:block;font-size:10px;font-weight:700;color:#5a7fa0;margin-bottom:6px;">🔑 الرمز السري المرتبط (PIN)</label>
+            <input type="password" id="inpPIN" class="wtc-input" placeholder="••••" style="letter-spacing:.3em;">
+        </div>
+        <button class="btn-primary" id="btnLogin">🔐 دخول آمن وتحديد المحطة تلقائياً</button>
+    </div>
+</div>
+</template>
+
+<template id="tpl-selectStation">
+<div class="pad">
+    <div class="card" style="padding:22px;">
+        <div style="text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,95,142,.09);margin-bottom:16px;">
+            <div style="font-size:26px;">📍</div>
+            <div style="font-size:14px;font-weight:700;color:#003B5C;margin-top:6px;">المحطات المصرحة للحساب</div>
+        </div>
+        <div id="stationList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+</div>
+</template>
+
+<template id="tpl-systems">
+<div class="pad">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+            <span class="line-badge" id="lblLine"></span>
+            <div style="font-size:20px;font-weight:700;color:#003B5C;margin-top:4px;" id="lblStation"></div>
+        </div>
+        <button class="btn-exit" id="btnLogout">خروج ↩</button>
+    </div>
+    <div class="card-dark" style="padding:16px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;margin-bottom:12px;">
+            <div>
+                <div style="font-size:9px;color:#90e0ef;font-weight:600;">👤 الرقم المسؤول: <span style="color:#00CFE8;" id="lblOp"></span></div>
+                <div style="font-size:11px;font-weight:700;color:white;margin-top:4px;" id="lblShift"></div>
+            </div>
+            <div style="background:rgba(0,30,60,.5);padding:10px 14px;border-radius:13px;text-align:center;border:1px solid rgba(0,180,216,.2);">
+                <div style="font-size:8px;color:#90e0ef;">مؤشر الفحص</div>
+                <div style="font-size:22px;font-weight:700;color:#00CFE8;font-variant-numeric:tabular-nums;" id="kpiNum">0%</div>
+            </div>
+        </div>
+        <div style="width:100%;background:rgba(255,255,255,.08);height:3px;border-radius:99px;overflow:hidden;position:relative;z-index:1;">
+            <div class="prog-fill" id="kpiBar" style="width:0%"></div>
+        </div>
+    </div>
+    <div style="background:rgba(0,119,182,.07);border:1px solid rgba(0,119,182,.14);border-radius:13px;padding:8px 12px;font-size:10px;color:#005F8E;font-weight:600;text-align:center;margin-bottom:12px;">
+        ⚙️ يمكنك تعديل وحفظ أي نظام مراراً؛ التحديثات تصل للمشرف فوراً.
+    </div>
+    <div style="font-size:9px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">⚙️ أنظمة المحطة الميدانية:</div>
+    <div id="systemsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:90px;"></div>
+    <div style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:40;">
+        <button class="fab" id="btnSync">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            إرسال التقرير للمشرف
+        </button>
+    </div>
+</div>
+</template>
+
+<template id="tpl-checklist">
+<div class="pad" style="padding-bottom:90px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <button class="btn-back" id="btnBackSys">↩ إلغاء والتراجع</button>
+        <span style="font-size:10px;background:#001F3A;color:#00CFE8;font-weight:700;padding:6px 13px;border-radius:8px;" id="clkStation"></span>
+    </div>
+    <div class="card" style="padding:16px;margin-bottom:14px;">
+        <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid rgba(0,95,142,.08);padding-bottom:8px;margin-bottom:12px;">📋 Check Items (Read Only)</div>
+        <p style="font-size:11px;font-weight:500;color:#1e3a5f;background:rgba(0,95,142,.04);padding:13px;border-radius:11px;border:1px solid rgba(0,95,142,.07);text-align:left;line-height:2;direction:ltr;margin:0;">
+            1- Check if the system unit status is normal and running without active alarms.<br>
+            2- Check if any leakage, abnormal noise, or high temperature is detected in the zone.
+        </p>
+    </div>
+    <div class="card" style="padding:16px;">
+        <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">🎯 النتيجة الإجمالية للنظام:</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <button class="s-btn" id="sOk" onclick="setStatus('no_obs')">✓ No Obs</button>
+            <button class="s-btn" id="sRem" onclick="setStatus('remark')">⚠️ Remark</button>
+            <button class="s-btn" id="sNa" onclick="setStatus('na')">N/A</button>
+        </div>
+        <div id="remarkBox" style="display:none;border-top:1px solid rgba(0,95,142,.08);padding-top:12px;">
+            <div style="margin-bottom:10px;">
+                <label style="display:block;font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px;">📝 تفاصيل الخلل الميداني (إجباري):</label>
+                <textarea id="noteArea" class="wtc-input" rows="2" placeholder="يرجى وصف المشكلة بدقة..."></textarea>
+            </div>
+            <div>
+                <label style="display:block;font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px;">📸 صور الإثبات (بحد أقصى 4 صور):</label>
+                <input type="file" accept="image/*" multiple id="imgInput" style="font-size:11px;color:#64748b;width:100%;">
+                <div id="imgGrid" style="display:none;margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:rgba(0,95,142,.04);border-radius:13px;border:1px solid rgba(0,95,142,.07);"></div>
+                <p id="imgMax" style="display:none;font-size:10px;color:#dc2626;margin-top:6px;font-weight:600;">تم الوصول للحد الأقصى (4 صور).</p>
+            </div>
+        </div>
+    </div>
+    <div class="save-bar">
+        <div style="max-width:560px;margin:0 auto;">
+            <button class="btn-primary" id="btnSave">💾 حفظ وإرسال فوري للمشرف</button>
+        </div>
+    </div>
+</div>
+</template>
+
+<template id="tpl-adminSelect">
+<div class="pad">
+    <div class="card" style="padding:22px;">
+        <div style="text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,95,142,.09);margin-bottom:16px;">
+            <div style="font-size:26px;">🏢</div>
+            <div style="font-size:14px;font-weight:700;color:#003B5C;margin-top:6px;">المحطات التابعة لصلاحيتك</div>
+            <div style="font-size:10px;color:#64748b;margin-top:4px;">اختر المحطة التي ترغب بمراقبة أنظمتها</div>
+        </div>
+        <div id="adminStationList" style="display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;"></div>
+    </div>
+</div>
+</template>
+
+<template id="tpl-history">
+<div class="pad">
+    <div class="card" style="padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+            <div style="font-size:11px;font-weight:700;color:#003B5C;">📊 شاشة الرقابة اللحظية (المشرف)</div>
+            <div style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(0,180,216,.12);color:var(--wtc-blue);display:inline-block;margin-top:4px;">👋 رصد حي لكافة الأنظمة الميدانية</div>
+        </div>
+        <button class="btn-back" id="btnBackAdmin">المحطات ↩</button>
+    </div>
+    <div class="card" style="padding:14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+            <label style="display:block;font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:5px;">📅 تاريخ التدقيق:</label>
+            <input type="date" id="adminDate" class="wtc-input" style="font-size:10px;padding:9px 11px;">
+        </div>
+        <div>
+            <label style="display:block;font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:5px;">📍 المحطة المراقبة:</label>
+            <select id="adminStation" class="wtc-input" style="font-size:10px;padding:9px 11px;"></select>
+        </div>
+    </div>
+    <div id="historyShifts"></div>
+</div>
+</template>
+
+<style>
+.pad { padding:16px; max-width:480px; margin:0 auto; }
+.admin-sys-btn { width:100%; padding:11px 13px; border-radius:15px; border:1.5px solid; display:flex; justify-content:space-between; align-items:center; font-size:11px; text-align:right; cursor:pointer; font-family:'IBM Plex Sans Arabic',sans-serif; transition:all .2s; }
+</style>
+
+<!-- ════ SCRIPTS ════ -->
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const SUPERVISORS = [
+    {pass:'1101',stations:['PS1 AB']},{pass:'1102',stations:['PS2 AB']},{pass:'1103',stations:['PS3 AB']},
+    {pass:'1104',stations:['PS4 AB']},{pass:'1105',stations:['PS5 AB']},{pass:'1106',stations:['PS6 AB']},
+    {pass:'1107',stations:['HPT AB']},{pass:'1108',stations:['PS1 C']},{pass:'1109',stations:['PS2 C']},
+    {pass:'1110',stations:['PS3 C']},{pass:'1111',stations:['HPT C']},{pass:'1112',stations:['PS1 FG']},
+    {pass:'1113',stations:['PS2 FG']},{pass:'1114',stations:['PS3 FG']},{pass:'1115',stations:['HPT FG']},
+    {pass:'2026',stations:['PS1 AB','PS2 AB','PS3 AB','PS4 AB','PS5 AB','PS6 AB','HPT AB','PS1 C','PS2 C','PS3 C','HPT C','PS1 FG','PS2 FG','PS3 FG','HPT FG']}
+];
+
+const OPERATORS = {
+    '2011':{pin:'1011',codes:['ps1ab']},'2012':{pin:'1012',codes:['ps1ab']},'2013':{pin:'1013',codes:['ps1ab']},'2014':{pin:'1014',codes:['ps1ab']},'2015':{pin:'1015',codes:['ps1ab']},
+    '2021':{pin:'1021',codes:['ps2ab']},'2022':{pin:'1022',codes:['ps2ab']},'2023':{pin:'1023',codes:['ps2ab']},'2024':{pin:'1024',codes:['ps2ab']},'2025':{pin:'1025',codes:['ps2ab']},
+    '2031':{pin:'1031',codes:['ps3ab']},'2032':{pin:'1032',codes:['ps3ab']},'2033':{pin:'1033',codes:['ps3ab']},'2034':{pin:'1034',codes:['ps3ab']},'2035':{pin:'1035',codes:['ps3ab']},
+    '2041':{pin:'1041',codes:['ps4ab']},'2042':{pin:'1042',codes:['ps4ab']},'2043':{pin:'1043',codes:['ps4ab']},'2044':{pin:'1044',codes:['ps4ab']},'2045':{pin:'1045',codes:['ps4ab']},
+    '2051':{pin:'1051',codes:['ps5ab']},'2052':{pin:'1052',codes:['ps5ab']},'2053':{pin:'1053',codes:['ps5ab']},'2054':{pin:'1054',codes:['ps5ab']},'2055':{pin:'1055',codes:['ps5ab']},
+    '2061':{pin:'1061',codes:['ps6ab']},'2062':{pin:'1062',codes:['ps6ab']},'2063':{pin:'1063',codes:['ps6ab']},'2064':{pin:'1064',codes:['ps6ab']},'2065':{pin:'1065',codes:['ps6ab']},
+    '2071':{pin:'1071',codes:['hptab']},'2072':{pin:'1072',codes:['hptab']},'2073':{pin:'1073',codes:['hptab']},'2074':{pin:'1074',codes:['hptab']},'2075':{pin:'1075',codes:['hptab']},
+    '3011':{pin:'1111',codes:['ps1c']},'3012':{pin:'1112',codes:['ps1c']},'3013':{pin:'1113',codes:['ps1c']},'3014':{pin:'1114',codes:['ps1c']},'3015':{pin:'1115',codes:['ps1c']},
+    '3021':{pin:'1121',codes:['ps2c']},'3022':{pin:'1122',codes:['ps2c']},'3023':{pin:'1123',codes:['ps2c']},'3024':{pin:'1124',codes:['ps2c']},'3025':{pin:'1125',codes:['ps2c']},
+    '3031':{pin:'1131',codes:['ps3c']},'3032':{pin:'1132',codes:['ps3c']},'3033':{pin:'1133',codes:['ps3c']},'3034':{pin:'1134',codes:['ps3c']},'3035':{pin:'1135',codes:['ps3c']},
+    '3041':{pin:'1141',codes:['hptc']},'3042':{pin:'1142',codes:['hptc']},'3043':{pin:'1143',codes:['hptc']},'3044':{pin:'1144',codes:['hptc']},'3045':{pin:'1145',codes:['hptc']},
+    '4011':{pin:'1211',codes:['ps1fg']},'4012':{pin:'1212',codes:['ps1fg']},'4013':{pin:'1213',codes:['ps1fg']},'4014':{pin:'1214',codes:['ps1fg']},'4015':{pin:'1215',codes:['ps1fg']},
+    '4021':{pin:'1221',codes:['ps2fg']},'4022':{pin:'1222',codes:['ps2fg']},'4023':{pin:'1223',codes:['ps2fg']},'4024':{pin:'1224',codes:['ps2fg']},'4025':{pin:'1225',codes:['ps2fg']},
+    '4031':{pin:'1231',codes:['ps3fg']},'4032':{pin:'1232',codes:['ps3fg']},'4033':{pin:'1233',codes:['ps3fg']},'4034':{pin:'1234',codes:['ps3fg']},'4035':{pin:'1235',codes:['ps3fg']},
+    '4041':{pin:'1241',codes:['hptfg']},'4042':{pin:'1242',codes:['hptfg']},'4043':{pin:'1243',codes:['hptfg']},'4044':{pin:'1244',codes:['hptfg']},'4045':{pin:'1245',codes:['hptfg']},
+    '9001':{pin:'5555',codes:['ps1ab','ps2ab']}
+};
+
+const STATIONS = {
+    'ps1ab':{line:'AB LINES',name:'PS1 AB'},'ps2ab':{line:'AB LINES',name:'PS2 AB'},'ps3ab':{line:'AB LINES',name:'PS3 AB'},
+    'ps4ab':{line:'AB LINES',name:'PS4 AB'},'ps5ab':{line:'AB LINES',name:'PS5 AB'},'ps6ab':{line:'AB LINES',name:'PS6 AB'},
+    'hptab':{line:'AB LINES',name:'HPT AB'},
+    'ps1c':{line:'C LINES',name:'PS1 C'},'ps2c':{line:'C LINES',name:'PS2 C'},'ps3c':{line:'C LINES',name:'PS3 C'},'hptc':{line:'C LINES',name:'HPT C'},
+    'ps1fg':{line:'FG LINES',name:'PS1 FG'},'ps2fg':{line:'FG LINES',name:'PS2 FG'},'ps3fg':{line:'FG LINES',name:'PS3 FG'},'hptfg':{line:'FG LINES',name:'HPT FG'}
+};
+
+const SYS_ABC = ['AIR CONDITIONING&VENTILATION SYS-1','AIR CONDITIONING&VENTILATION SYS-2','COOLING WATER SYSTEM','DRINKING AND UTILITY','ELECTRICAL BUILDING CABLE CELLAER','EMERGENCY GENERATOR','FLOW CONTROL VALVE MAIN','LOW VOLTAGE ROOM','MAIN PUMP HOUSE','MEDIUM VOLTAGE ROOM','PRESSUR CONTROL VALVE','SEWAGE SYSTEM','STATION BATTERIES ROOM','SURGE RELIEF SYSTEM','UNIT CONTROL&FEEDBACK EQUIPMENT','Scraper'];
+const SYS_FG  = ['AIR COMPERSSOR SYSTEM','BOOSTER PUMP HOUSE','COOLING WATER SYSTEM','ELECTRICAL VSD BULDING','EMERGENCY GENERATOR','HV, MV, LV, VSD TRANSFORMERS','HVAC AND CHILLERS','INLET SURGE VESSEL SYSTEM','LOW VOLTAGE ROOM','MAIN PUMP HOUSE','MEDIUM VOLTAGE ROOM','OUTLET SURGE VESSEL SYSTEM','PRESSURE RELIEF SYSTEM','TANK FARM AREA','UTILITY & FIRE DIESEL PUPM SYSTEM'];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+var state = {
+    screen: 'login',
+    opID: '', opPIN: '',
+    line: '', station: '',
+    shift: '', date: new Date().toISOString().split('T')[0],
+    allowedCodes: [],
+    isAdmin: false, supervisor: null,
+    adminStation: '', adminDate: new Date().toISOString().split('T')[0],
+    system: '', status: 'no_obs', note: '', images: [],
+    logs: JSON.parse(localStorage.getItem('wtc_logs') || '[]')
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function getSystems(st) { return st && st.includes('FG') ? SYS_FG : SYS_ABC; }
+function getShift() { var h = new Date().getHours(); return (h>=6&&h<18)?'صباحي':'مسائي'; }
+function getLog(sys, st, sh, dt) {
+    st = st || state.station; sh = sh || state.shift; dt = dt || state.date;
+    return state.logs.find(l => l.station===st && l.system===sys && l.shift===sh && l.date===dt);
+}
+function isChecked(sys, st, sh, dt) { return !!getLog(sys, st, sh, dt); }
+function kpi(st) {
+    var sys = getSystems(st||state.station);
+    if(!sys.length) return 0;
+    return Math.round(sys.filter(s=>isChecked(s,st)).length/sys.length*100);
+}
+function saveLogs() { localStorage.setItem('wtc_logs', JSON.stringify(state.logs)); }
+function cloneTemplate(id) {
+    var t = document.getElementById(id);
+    return t.content.cloneNode(true);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+    var sc = document.getElementById('screens');
+    // remove all children safely
+    while(sc.firstChild) sc.removeChild(sc.firstChild);
+
+    var h = new Date().getHours();
+    var isNight = (h>=18||h<6);
+
+    if (state.screen === 'login')         renderLogin(sc, isNight);
+    else if (state.screen === 'select')   renderSelect(sc);
+    else if (state.screen === 'systems')  renderSystems(sc);
+    else if (state.screen === 'checklist') renderChecklist(sc);
+    else if (state.screen === 'adminSel') renderAdminSelect(sc);
+    else if (state.screen === 'history')  renderHistory(sc);
+}
+
+function renderLogin(sc, isNight) {
+    var node = cloneTemplate('tpl-login');
+    var bar = node.getElementById('shiftBar');
+    bar.classList.add(isNight ? 'night' : 'day');
+    node.getElementById('shiftIcon').textContent = isNight ? '🌙' : '☀️';
+    node.getElementById('shiftLabel').textContent = isNight ? 'الوردية المسائية' : 'الوردية الصباحية';
+    node.getElementById('btnLogin').onclick = doLogin;
+    node.getElementById('inpID').onkeyup   = function(e){ if(e.key==='Enter') doLogin(); };
+    node.getElementById('inpPIN').onkeyup  = function(e){ if(e.key==='Enter') doLogin(); };
+    sc.appendChild(node);
+    // wrap in bg
+    sc.firstElementChild.className = 'pad';
+    sc.style.background = isNight
+        ? 'linear-gradient(180deg,#001e3c 0%,#002d55 35%,#0d2137 65%,#F0F8FF 100%)'
+        : 'linear-gradient(180deg,#e0f2fe 0%,#F0F8FF 45%)';
+    sc.style.minHeight = 'calc(100vh - 56px)';
+}
+
+function renderSelect(sc) {
+    sc.style.background = ''; sc.style.minHeight = '';
+    var node = cloneTemplate('tpl-selectStation');
+    var list = node.getElementById('stationList');
+    state.allowedCodes.forEach(function(code){
+        var btn = document.createElement('button');
+        btn.style.cssText = 'width:100%;padding:14px 16px;border-radius:15px;text-align:right;font-size:12px;font-weight:700;background:#f0f8ff;border:1.5px solid rgba(0,95,142,.1);display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:IBM Plex Sans Arabic,sans-serif;transition:all .2s;';
+        btn.innerHTML = '<span style="color:#003B5C;">'+STATIONS[code].name+'</span><span class="line-badge">'+STATIONS[code].line+'</span>';
+        btn.onmouseover = function(){ this.style.borderColor='#0077B6'; this.style.background='#e0f2fe'; };
+        btn.onmouseout  = function(){ this.style.borderColor='rgba(0,95,142,.1)'; this.style.background='#f0f8ff'; };
+        btn.onclick = function(){ selectStation(code); };
+        list.appendChild(btn);
+    });
+    sc.appendChild(node);
+}
+
+function renderSystems(sc) {
+    sc.style.background = ''; sc.style.minHeight = '';
+    var node = cloneTemplate('tpl-systems');
+    node.getElementById('lblLine').textContent    = state.line;
+    node.getElementById('lblStation').textContent = state.station;
+    node.getElementById('lblOp').textContent      = state.opID;
+    node.getElementById('lblShift').textContent   = state.shift==='صباحي'?'☀️ الوردية الصباحية':'🌙 الوردية المسائية';
+    var k = kpi();
+    node.getElementById('kpiNum').textContent = k+'%';
+    node.getElementById('kpiBar').style.width = k+'%';
+    node.getElementById('btnLogout').onclick = function(){ state.opID=''; state.screen='login'; render(); };
+    node.getElementById('btnSync').onclick = function(){ if(confirm('هل أنت متأكد من إرسال التقرير النهائي؟')) alert('🔄 تم إرسال التقرير بنجاح!'); };
+
+    var list = node.getElementById('systemsList');
+    getSystems(state.station).forEach(function(sys){
+        var log = getLog(sys);
+        var isOk = log && log.status !== 'remark';
+        var isRem = log && log.status === 'remark';
+        var btn = document.createElement('button');
+        btn.className = 'sys-card' + (isOk?' ok':(isRem?' rem':''));
+        btn.style.width = '100%';
+        btn.innerHTML =
+            '<span style="font-size:11px;font-weight:600;color:#1e3a5f;width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+sys+'</span>'+
+            '<span class="badge '+(log?(isRem?'b-rem':'b-ok'):'b-pend')+'">'+(log?(isRem?'✓ تعديل ⚠️':'✓ مراجعة'):'معلق')+'</span>';
+        btn.onclick = function(){ openChecklist(sys); };
+        list.appendChild(btn);
+    });
+    sc.appendChild(node);
+}
+
+function renderChecklist(sc) {
+    sc.style.background = ''; sc.style.minHeight = '';
+    var node = cloneTemplate('tpl-checklist');
+    node.getElementById('clkStation').textContent = state.station;
+    node.getElementById('btnBackSys').onclick = function(){ state.screen='systems'; render(); };
+
+    // restore state
+    updateStatusUI(node, state.status);
+    if(state.note) node.getElementById('noteArea').value = state.note;
+    refreshImgGrid(node);
+
+    node.getElementById('sOk').onclick  = function(){ setStatus('no_obs'); };
+    node.getElementById('sRem').onclick = function(){ setStatus('remark'); };
+    node.getElementById('sNa').onclick  = function(){ setStatus('na'); };
+
+    node.getElementById('imgInput').onchange = function(e){ handleImgUpload(e); };
+    node.getElementById('btnSave').onclick = doSave;
+    sc.appendChild(node);
+}
+
+function renderAdminSelect(sc) {
+    sc.style.background = ''; sc.style.minHeight = '';
+    var node = cloneTemplate('tpl-adminSelect');
+    var list = node.getElementById('adminStationList');
+    if(state.supervisor){
+        state.supervisor.stations.forEach(function(st){
+            var btn = document.createElement('button');
+            btn.style.cssText = 'width:100%;padding:13px;border-radius:14px;font-size:12px;font-weight:700;background:#f0f8ff;border:1.5px solid rgba(0,95,142,.12);text-align:center;cursor:pointer;font-family:IBM Plex Sans Arabic,sans-serif;transition:all .2s;color:#003B5C;';
+            btn.textContent = st;
+            btn.onmouseover = function(){ this.style.borderColor='#0077B6'; this.style.background='#e0f2fe'; };
+            btn.onmouseout  = function(){ this.style.borderColor='rgba(0,95,142,.12)'; this.style.background='#f0f8ff'; };
+            btn.onclick = function(){ state.adminStation=st; state.screen='history'; render(); };
+            list.appendChild(btn);
+        });
+    }
+    sc.appendChild(node);
+}
+
+function renderHistory(sc) {
+    sc.style.background = ''; sc.style.minHeight = '';
+    var node = cloneTemplate('tpl-history');
+    node.getElementById('btnBackAdmin').onclick = function(){ state.screen='adminSel'; render(); };
+
+    var selSt = node.getElementById('adminStation');
+    if(state.supervisor){
+        state.supervisor.stations.forEach(function(st){
+            var o = document.createElement('option');
+            o.value = st; o.textContent = st;
+            if(st===state.adminStation) o.selected = true;
+            selSt.appendChild(o);
+        });
+    }
+    selSt.onchange = function(){ state.adminStation=this.value; renderHistoryShifts(node); };
+
+    var dateIn = node.getElementById('adminDate');
+    dateIn.value = state.adminDate;
+    dateIn.onchange = function(){ state.adminDate=this.value; renderHistoryShifts(node); };
+
+    sc.appendChild(node);
+    renderHistoryShifts(document.getElementById('screens'));
+}
+
+function renderHistoryShifts(sc) {
+    var cont = sc.getElementById ? sc.getElementById('historyShifts') : document.getElementById('historyShifts');
+    if(!cont) return;
+    while(cont.firstChild) cont.removeChild(cont.firstChild);
+    ['صباحي','مسائي'].forEach(function(sh){
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '14px'; card.style.overflow = 'hidden';
+        var header = document.createElement('div');
+        header.style.cssText = 'padding:11px 13px;font-size:11px;font-weight:700;color:#003B5C;border-bottom:1px solid rgba(0,95,142,.08);background:rgba(0,95,142,.03);';
+        header.textContent = sh==='صباحي'?'☀️ الوردية الصباحية':'🌙 الوردية المسائية';
+        card.appendChild(header);
+        var body = document.createElement('div');
+        body.style.cssText = 'padding:10px;display:flex;flex-direction:column;gap:6px;';
+        getSystems(state.adminStation).forEach(function(sys){
+            var log = getLog(sys, state.adminStation, sh, state.adminDate);
+            var btn = document.createElement('button');
+            btn.className = 'admin-sys-btn';
+            var checked = !!log;
+            btn.style.background = checked ? 'rgba(240,253,244,.7)' : 'rgba(254,242,242,.5)';
+            btn.style.borderColor = checked ? 'rgba(16,185,129,.2)' : 'rgba(254,202,202,.6)';
+            btn.style.cursor = checked ? 'pointer' : 'not-allowed';
+            btn.innerHTML =
+                '<div style="width:60%;"><div style="font-weight:700;color:#1e3a5f;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+sys+'</div>'+
+                (checked?'<div style="font-size:9px;color:#64748b;margin-top:3px;">🕒 '+log.time+' &nbsp;<span class="badge b-live">📬 رصد حي</span></div>':'')+
+                '</div>'+
+                '<span class="badge '+(checked?(log.status==='no_obs'?'b-ok':'b-rem'):'b-pend')+'">'+(checked?(log.status==='no_obs'?'سليم':'ملاحظة ⚠️'):'⚠️ معلق')+'</span>';
+            if(checked){
+                btn.onclick = function(){ showLogModal(log); };
+            }
+            body.appendChild(btn);
+        });
+        card.appendChild(body);
+        cont.appendChild(card);
+    });
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function doLogin() {
+    var id  = document.getElementById('inpID').value.trim();
+    var pin = document.getElementById('inpPIN').value.trim();
+    if(!id||!pin){ alert('⚠️ يرجى إدخال الرقم الوظيفي والرمز السري.'); return; }
+    if(!OPERATORS[id]){ alert('❌ الحساب غير مسجل بنظام محطات WTC.'); return; }
+    if(OPERATORS[id].pin!==pin){ alert('❌ الرمز السري الشخصي (PIN) غير صحيح!'); return; }
+    state.opID = id;
+    state.shift = getShift();
+    var codes = OPERATORS[id].codes;
+    state.allowedCodes = codes;
+    if(codes.length===1){
+        state.line    = STATIONS[codes[0]].line;
+        state.station = STATIONS[codes[0]].name;
+        state.screen  = 'systems';
+    } else {
+        state.screen = 'select';
+    }
+    render();
+}
+
+function selectStation(code) {
+    state.line    = STATIONS[code].line;
+    state.station = STATIONS[code].name;
+    state.screen  = 'systems';
+    render();
+}
+
+function openChecklist(sys) {
+    state.system = sys;
+    var log = getLog(sys);
+    if(log){ state.status=log.status; state.note=log.note; state.images=[...(log.images||[])]; }
+    else    { state.status='no_obs'; state.note=''; state.images=[]; }
+    state.screen = 'checklist';
+    render();
+}
+
+var currentStatus = 'no_obs';
+function setStatus(s) {
+    state.status = s;
+    var sc = document.getElementById('screens');
+    updateStatusUI(sc, s);
+    var box = document.getElementById('remarkBox');
+    if(box) box.style.display = (s==='remark') ? 'block' : 'none';
+}
+
+function updateStatusUI(root, s) {
+    ['sOk','sRem','sNa'].forEach(function(id){
+        var el = root.getElementById ? root.getElementById(id) : document.getElementById(id);
+        if(el) el.className = 's-btn';
+    });
+    var map = {no_obs:'sOk', remark:'sRem', na:'sNa'};
+    var css = {no_obs:'ok', remark:'rem', na:'na'};
+    var el = root.getElementById ? root.getElementById(map[s]) : document.getElementById(map[s]);
+    if(el) el.className = 's-btn ' + css[s];
+    var box = root.getElementById ? root.getElementById('remarkBox') : document.getElementById('remarkBox');
+    if(box) box.style.display = (s==='remark') ? 'block' : 'none';
+}
+
+function handleImgUpload(e) {
+    var files = e.target.files;
+    if(!files||!files.length) return;
+    var rem = 4 - state.images.length;
+    if(rem<=0){ alert('لقد وصلت للحد الأقصى (4 صور).'); return; }
+    var n = Math.min(files.length, rem);
+    for(var i=0;i<n;i++){
+        (function(f){
+            var r = new FileReader();
+            r.onload = function(ev){ state.images.push(ev.target.result); refreshImgGrid(document.getElementById('screens')); };
+            r.readAsDataURL(f);
+        })(files[i]);
+    }
+    e.target.value='';
+}
+
+function refreshImgGrid(root) {
+    var grid = root.getElementById ? root.getElementById('imgGrid') : document.getElementById('imgGrid');
+    var maxP = root.getElementById ? root.getElementById('imgMax')  : document.getElementById('imgMax');
+    var inp  = root.getElementById ? root.getElementById('imgInput'): document.getElementById('imgInput');
+    if(!grid) return;
+    while(grid.firstChild) grid.removeChild(grid.firstChild);
+    if(state.images.length>0){
+        grid.style.display = 'grid';
+        state.images.forEach(function(src, idx){
+            var wrap = document.createElement('div');
+            wrap.style.position = 'relative';
+            var img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'width:100%;height:110px;object-fit:cover;border-radius:10px;border:1px solid rgba(0,95,142,.12);';
+            var del = document.createElement('button');
+            del.textContent = '✕';
+            del.style.cssText = 'position:absolute;top:4px;right:4px;background:#dc2626;color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+            del.onclick = function(){ state.images.splice(idx,1); refreshImgGrid(document.getElementById('screens')); };
+            wrap.appendChild(img); wrap.appendChild(del);
+            grid.appendChild(wrap);
+        });
+    } else {
+        grid.style.display = 'none';
+    }
+    if(maxP) maxP.style.display = state.images.length>=4 ? 'block' : 'none';
+    if(inp)  inp.style.display  = state.images.length>=4 ? 'none'  : 'block';
+}
+
+function doSave() {
+    var note = document.getElementById('noteArea') ? document.getElementById('noteArea').value.trim() : state.note;
+    if(state.status==='remark'){
+        if(!note){ alert('⚠️ في حالة وجود ملاحظة، يجب كتابة التفاصيل الميدانية.'); return; }
+        if(!state.images.length){ alert('📸 إجباري: يجب إرفاق صورة واحدة على الأقل!'); return; }
+    }
+    state.note = note;
+    var now = new Date();
+    var time = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var entry = {
+        operator:state.opID, line:state.line, station:state.station,
+        system:state.system, shift:state.shift, date:state.date, time:time,
+        status:state.status, note:state.status==='no_obs'?'لا يوجد ملاحظات':state.note,
+        images:[...state.images]
+    };
+    state.logs = state.logs.filter(function(l){ return !(l.station===state.station&&l.system===state.system&&l.shift===state.shift&&l.date===state.date); });
+    state.logs.unshift(entry);
+    saveLogs();
+    state.screen='systems'; render();
+}
+
+function showLogModal(log) {
+    var overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    var box = document.createElement('div');
+    box.className = 'card';
+    box.style.cssText = 'width:100%;max-width:440px;padding:20px;max-height:88vh;overflow-y:auto;';
+    var imgs = (log.images||[]).map(function(src){
+        return '<img src="'+src+'" style="width:100%;height:120px;object-fit:cover;border-radius:11px;border:1px solid rgba(0,95,142,.12);cursor:pointer;" onclick="window.open(this.src)">';
+    }).join('');
+    box.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(0,95,142,.09);margin-bottom:14px;"><span style="font-size:12px;font-weight:700;color:#003B5C;width:85%;overflow:hidden;text-overflow:ellipsis;">'+log.system+'</span><button onclick="this.closest(\'.overlay\').remove()" style="background:none;border:none;font-size:24px;font-weight:700;color:#94a3b8;cursor:pointer;line-height:1;">×</button></div>'+
+        '<div style="background:rgba(0,95,142,.04);padding:13px;border-radius:12px;border:1px solid rgba(0,95,142,.08);font-size:11px;margin-bottom:12px;">'+
+        '<div style="margin-bottom:5px;">👤 المشغل: <strong>'+log.operator+'</strong></div>'+
+        '<div style="margin-bottom:5px;">📅 التاريخ: '+log.date+'</div>'+
+        '<div>🕒 التوقيت: <strong style="color:#0077B6;">'+log.time+'</strong></div></div>'+
+        '<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px;">📝 الملاحظة:</div>'+
+        '<div style="background:rgba(0,95,142,.04);padding:12px;border-radius:11px;border:1px solid rgba(0,95,142,.07);font-size:11px;color:#1e3a5f;margin-bottom:'+(imgs?'12px':'0')+';">'+log.note+'</div>'+
+        (imgs?'<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:8px;">📸 الصور:</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+imgs+'</div>':'')+
+        '<button onclick="this.closest(\'.overlay\').remove()" class="btn-primary" style="margin-top:14px;">إغلاق التقرير</button>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+
+// ── SUPERVISOR ────────────────────────────────────────────────────────────
+document.getElementById('supBtn').onclick = function(){
+    if(state.isAdmin){
+        state.isAdmin=false; state.supervisor=null;
+        this.textContent='🔒 دخول المشرفين';
+        state.screen='login'; render();
+    } else {
+        var pass = prompt('الرجاء إدخال الرمز السري للمشرف:');
+        if(pass===null) return;
+        var sup = SUPERVISORS.find(function(s){ return s.pass===pass; });
+        if(sup){
+            state.isAdmin=true; state.supervisor=sup;
+            state.adminStation=sup.stations[0]||'';
+            document.getElementById('supBtn').textContent='🔓 خروج المشرف';
+            state.screen='adminSel'; render();
+        } else {
+            alert('⚠️ الرمز السري للمشرف غير صحيح!');
+        }
+    }
+};
+
+// ── SPLASH → APP ──────────────────────────────────────────────────────────
+function startApp() {
+    setTimeout(function(){
+        var splash = document.getElementById('splash');
+        splash.classList.add('out');
+        setTimeout(function(){
+            splash.style.display = 'none';
+            document.getElementById('app').style.display = '';
+            render();
+        }, 650);
+    }, 2600);
+}
+
+if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    startApp();
+}
+</script>
 
 </body>
 </html>
